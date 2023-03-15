@@ -1,6 +1,6 @@
 from typing import Union
 from fastapi import FastAPI
-from database import db
+from .config.database import db
 
 
 app = FastAPI()
