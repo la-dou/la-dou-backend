@@ -1,11 +1,28 @@
 from typing import Union
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from .routes.auth import auth
 
 from .config.database import db
 
 
 app = FastAPI()
 
+origins = ["*"]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(auth)
+
+@app.on_event("startup")
+async def startup():
+    pass
 
 @app.get("/")
 def read_root():
