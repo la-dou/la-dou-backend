@@ -2,6 +2,8 @@ from typing import Union
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from .routes.auth import auth
+
 from .config.database import db
 
 
@@ -15,6 +17,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(auth)
 
 @app.on_event("startup")
 async def startup():

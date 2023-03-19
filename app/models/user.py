@@ -4,10 +4,18 @@ from pydantic import BaseModel, Field
 from .customer import Customer
 from .driver import Driver
 
+
+
 class UserAuth(BaseModel):
     roll_no: int = Field(..., description="user roll number")
     password: str = Field(..., min_length=5, max_length=24, description="user password")
     role: str = Field(..., description="user role")
+
+class UserSignup(UserAuth):
+    name : str = Field(..., description="user name")
+    gender: str
+    phone_number: str = Field(..., description="user phone number")
+    
 
 class UserOut(BaseModel):
     id: UUID
