@@ -10,6 +10,8 @@ from ..utils.hashing import (
 from ..models.token import TokenSchema
 from ..models.user import UserOut, UserAuth, SystemUser, UserSignup
 
+from ..models.user import User
+
 from ..config.database import db
 from ..config.deps import get_current_user
 
@@ -19,27 +21,33 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 auth = APIRouter()
 
 @auth.post("/signup", response_model=UserOut)
-async def signup(user: UserSignup):
+async def signup(userInfo: UserSignup):
     
     # Check if user already exists
-    if db.find_one({"roll_no" : user.roll_no}): 
+    if db.find_one({"roll_no" : userInfo.roll_no}): 
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User already exists",
         )
         
     # Hash password
-    hashed_password = get_hashed_password(user.password)
+    hashed_password = get_hashed_password(userInfo.password)
     
-    # Create user
-    user = {
-        "id": str(uuid4()),
-        "roll_no": user.roll_no,
-        "name": user.name,
-        "password": hashed_password,
-        "phone_number": user.phone_number,
-        "gender"   : user.gender,
-    }
+    # # Create user
+    # user : User = {
+    #     "id": str(uuid4()),
+    #     "roll_no": userInfo.roll_no,
+    #     "name": userInfo.name,
+    #     "password": hashed_password,
+    #     "phone_number": userInfo.phone_number,
+    #     "gender"   : userInfo.gender,
+    # }
+
+    user : UserSignup = UserSignup(**userInfo.dict())
+
+    user.password = hashed_password
+    user.id = str(uuid4())
+
     
     # Insert user
     db.insert_one(user)

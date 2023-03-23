@@ -4,6 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .routes.auth import auth
 from .routes.otp import otp_router
+from .routes.reset_password import reset_password
+
+from .schemas.user import usersEntity
 
 from .config.database import db
 
@@ -21,6 +24,7 @@ app.add_middleware(
 
 app.include_router(auth)
 app.include_router(otp_router)
+app.include_router(reset_password)
 
 @app.on_event("startup")
 async def startup():
@@ -33,7 +37,26 @@ def read_root():
     return {"Hello": "World"}
 
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    print(db)
-    return {"item_id": item_id, "q": q}
+@app.get("/all")
+def read_all():
+    # return dict(db.find())
+    response = db.find()
+    print("Type of response: ", type(response))
+    print("Response: ", response)
+
+    for user in response:
+        print(user["_id"])
+        print(user["id"])
+        print(user["name"])
+        print(user["roll_no"])
+        print(user["email_verified"])
+
+
+    return {"detail": "All users"}
+    # return dict(response)
+
+# TODO: Remove this route
+@app.get("/dump")
+def dump():
+    db.drop()
+    return {"detail": "Database dropped"}

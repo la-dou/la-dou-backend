@@ -3,6 +3,7 @@ from typing import List
 from pydantic import BaseModel, Field
 from .customer import Customer
 from .driver import Driver
+from typing import Optional
 
 
 
@@ -15,6 +16,11 @@ class UserSignup(UserAuth):
     name : str = Field(..., description="user name")
     gender: str
     phone_number: str = Field(..., description="user phone number")
+    email_verified: bool = False
+    phone_verified: bool = False
+    fcm_registration_token: List[str] = []
+    customer: Customer = None
+    driver: Driver = None
     
 
 class UserOut(BaseModel):
@@ -31,10 +37,8 @@ class User(UserOut):
     password: str
     phone_number: str
     gender: str
-    email_verified: bool
-    phone_verified: bool
-    fcm_registration_token: List[str]
-    customer: Customer
-    driver: Driver
-    
-    
+    email_verified: bool = False
+    phone_verified: bool = False
+    fcm_registration_token: List[str] = []
+    customer: Customer = None
+    driver: Driver = None
