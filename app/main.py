@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .routes.auth import auth
+from .routes.otp import otp_router
 
 from .config.database import db
 
@@ -19,6 +20,7 @@ app.add_middleware(
 )
 
 app.include_router(auth)
+app.include_router(otp_router)
 
 @app.on_event("startup")
 async def startup():
