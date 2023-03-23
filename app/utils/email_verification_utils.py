@@ -52,4 +52,4 @@ async def send_email(email: str, otp):
         return response
     except Exception as e:
         print("Error encountered:")
-        print(e.message)
+        print(e)

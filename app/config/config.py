@@ -8,8 +8,8 @@ class Settings(BaseSettings):
     MONGO_DB: str
     MONGO_COLLECTION: str
     MONGO_URI: str = ""
-    SENDER_EMAIL = ""
-    SENDGRID_API_KEY = ""
+    SENDER_EMAIL: str
+    SENDGRID_API_KEY: str
 
     class Config:
         env_file = ".env"
