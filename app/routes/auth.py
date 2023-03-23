@@ -48,6 +48,37 @@ async def signup(user: UserSignup):
     return user
 
 
+@auth.post("/login", response_model=TokenSchema)
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+        
+        # Find user
+        user = db.find_one({"roll_no": int(form_data.username)})
+        
+        # Check if user exists
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Username not found",
+            )
+        
+        # Check if password is correct
+        if not verify_password(form_data.password, user["password"]):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Your username or password is incorrect",
+            )
+        
+        # Create access token
+        access_token = create_access_token(user["roll_no"])
+        
+        # Create refresh token
+        refresh_token = create_refresh_token(user["roll_no"])
+        
+        # Return tokens
+        return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+
+
+
 @auth.get('/me', response_model=UserOut)
 async def me(current_user: SystemUser = Depends(get_current_user)):
     return current_user
