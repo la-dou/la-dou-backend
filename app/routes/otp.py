@@ -1,11 +1,12 @@
 from ..utils.email_verification_utils import generate_OTP, verify_OTP, send_email
+from ..models.otp import VerifyOTP
 
 from fastapi import APIRouter, status, HTTPException
 
 otp_router = APIRouter()
 
 
-@otp_router.post("/opt/email/generate")
+@otp_router.post("/otp/email/generate")
 async def generate_email_otp(roll_no: str):
     otp = generate_OTP(roll_no)
     # send otp to the user
@@ -15,8 +16,8 @@ async def generate_email_otp(roll_no: str):
 
 
 @otp_router.post("/otp/email/verify", response_model=bool)
-async def verify_email_otp(roll_no: str, otp: int):
-    verification_result, message = verify_OTP(roll_no, otp)
+async def verify_email_otp(data: VerifyOTP):
+    verification_result, message = verify_OTP(data.roll_no, data.otp)
 
     if verification_result and message == "success":
         return True
