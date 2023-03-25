@@ -20,18 +20,20 @@ class UserSignup(UserAuth):
 
 class UserOut(BaseModel):
     id: UUID
+    name: str
     roll_no: int
+    role: Optional[str]
+    phone_number: str
+    email_verified: Optional[bool]
+    phone_verified: Optional[bool]
 
 
 class SystemUser(UserOut):
-    role: Optional[str]
     password: str
 
 
 class User(UserOut):
-    name: str
     password: str
-    phone_number: str
     gender: str
     email_verified: bool
     phone_verified: bool
