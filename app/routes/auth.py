@@ -58,14 +58,14 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Username not found",
+                detail="Roll Number not found",
             )
         
         # Check if password is correct
         if not verify_password(form_data.password, user["password"]):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Your username or password is incorrect",
+                detail="Your roll number or password is incorrect",
             )
         
         # Create access token
