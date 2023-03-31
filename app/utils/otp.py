@@ -12,7 +12,7 @@ OTP_DICTIONARY = {} # this stores the otp and time stamp for 5 minutes
 VERIFICATION_TOKENS = {} # this stores a token for 30 minutes after the otp is verified
 
 
-def generate_OTP(client_id):
+def generate_OTP(client_id: int):
     otp = random.randint(1000, 9999)
     # get the time stamp
     time_stamp = datetime.now()
@@ -22,7 +22,7 @@ def generate_OTP(client_id):
     return otp
 
 
-def verify_OTP(client_id, otp):
+def verify_OTP(client_id: int, otp: int):
     # check if the client id is present in the dictionary
     if client_id in OTP_DICTIONARY:
         stored_otp, stored_time_stamp = OTP_DICTIONARY[client_id]
@@ -33,12 +33,9 @@ def verify_OTP(client_id, otp):
                 # delete the otp from the dictionary
                 del OTP_DICTIONARY[client_id]
                 # generate a token
-                token = os.urandom(16).hex()
+                token: str = os.urandom(16).hex()
                 # store the token in the verified token dictionary
-                VERIFICATION_TOKENS[client_id] = {
-                    "token": token,
-                    "time_stamp": datetime.now()
-                }
+                VERIFICATION_TOKENS[client_id] = (token, datetime.now())
                 return (True, token)
             else:
                 return (False, "OTP expired")
@@ -64,7 +61,7 @@ async def send_email(email: str, otp):
         print(e.message)
 
 
-def verify_token(client_id, token):
+def verify_token(client_id: int, token: str):
     print(VERIFICATION_TOKENS, client_id, token)
     if client_id in VERIFICATION_TOKENS:
         stored_token, stored_time_stamp = VERIFICATION_TOKENS[client_id]
@@ -74,7 +71,7 @@ def verify_token(client_id, token):
             if (datetime.now() - stored_time_stamp).total_seconds() < 60*30:
                 # delete the token from the dictionary
                 del VERIFICATION_TOKENS[client_id]
-                return True
+                return (True, "success")
             else:
                 return (False, "Token expired")
         else:

@@ -15,14 +15,17 @@ async def generate_email_otp(roll_no: int):
     return {"message": "OTP sent to your email"}
 
 
-@otp_router.post("/otp/email/verify", response_model=bool)
+@otp_router.post("/otp/email/verify", response_model=dict())
 async def verify_email_otp(data: VerifyOTP):
     verification_result, message = verify_OTP(data.roll_no, data.otp)
 
-    if verification_result and message == "success":
+    if verification_result:
         # update the db to set the email_verified field to True
         db.update_one({"roll_no": data.roll_no}, {"$set": {"email_verified": True}})
-        return True
+        return {
+            "message": "success",
+            "token": message
+        }
 
     elif message == "OTP expired":
         raise HTTPException(
