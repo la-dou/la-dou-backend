@@ -25,7 +25,6 @@ class UserSignup(UserAuth):
     
 
 class UserOut(BaseModel):
-    id: UUID
     name: str
     roll_no: int
     role: Optional[str]

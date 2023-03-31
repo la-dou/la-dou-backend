@@ -1,6 +1,5 @@
 from fastapi import APIRouter, status, HTTPException, Depends
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
-from uuid import uuid4
 
 from ..utils.hashing import (
     get_hashed_password, create_access_token, create_refresh_token, verify_password)
@@ -39,17 +38,17 @@ async def signup(userInfo: UserSignup):
     #     "phone_number": userInfo.phone_number,
     #     "gender"   : userInfo.gender,
     # }
+    userInfo.password = hashed_password
+    # user: UserSignup = UserSignup(**userInfo.dict())
 
-    user: UserSignup = UserSignup(**userInfo.dict())
-
-    user.password = hashed_password
-    user.id = str(uuid4())
+    # user.password = hashed_password
 
     # Insert user
-    db.insert_one(user)
+    print(userInfo.dict())
+    db.insert_one(userInfo.dict())
 
     # Return user
-    return user
+    return userInfo
 
 
 @auth.post("/login", response_model=TokenSchema)
