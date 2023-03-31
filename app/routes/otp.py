@@ -2,12 +2,14 @@ from ..utils.email_verification_utils import generate_OTP, verify_OTP, send_emai
 from ..models.otp import VerifyOTP
 
 from fastapi import APIRouter, status, HTTPException
+from ..config.database import db
+
 
 otp_router = APIRouter()
 
 
 @otp_router.post("/otp/email/generate")
-async def generate_email_otp(roll_no: str):
+async def generate_email_otp(roll_no: int):
     otp = generate_OTP(roll_no)
     # send otp to the user
     await send_email(f"{roll_no}@lums.edu.pk", otp)
@@ -20,6 +22,8 @@ async def verify_email_otp(data: VerifyOTP):
     verification_result, message = verify_OTP(data.roll_no, data.otp)
 
     if verification_result and message == "success":
+        # update the db to set the email_verified field to True
+        db.update_one({"roll_no": data.roll_no}, {"$set": {"email_verified": True}})
         return True
 
     elif message == "OTP expired":
