@@ -1,9 +1,7 @@
-from ..utils.email_verification_utils import generate_OTP, verify_OTP, send_email
-from ..models.otp import VerifyOTP
-
 from fastapi import APIRouter, status, HTTPException
 from ..config.database import db
-
+from ..models.otp import VerifyOTP
+from ..utils.otp import generate_OTP, verify_OTP, send_email
 
 otp_router = APIRouter()
 
