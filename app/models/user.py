@@ -42,3 +42,8 @@ class User(UserOut):
     fcm_registration_token: List[str] = []
     customer: Customer = None
     driver: Driver = None
+
+class PasswordReset(BaseModel):
+    roll_no: int = Field(..., description="roll number of the user")
+    verification_token: str = Field(..., description="verification token for the user")
+    password: str = Field(..., description="new password for the user")
