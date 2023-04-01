@@ -1,7 +1,6 @@
 def userEntity(item) -> dict:
     return {
         "id": str(item["_id"]),
-        "user_id": item["id"],
         "roll_no": item["roll_no"],
         "name": item["name"],
         "password": item["password"],
@@ -9,7 +8,7 @@ def userEntity(item) -> dict:
         "gender": item["gender"],
         "email_verified": item["email_verified"],
         "phone_verified": item["phone_verified"],
-        "fcm_registration_token": item["fcm_registration_token"],
+        "fcm_device_token": item["fcm_device_token"],
         "customer": item["customer"],
         "driver": item["driver"],
     }

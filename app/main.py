@@ -37,21 +37,10 @@ def read_root():
 
 @app.get("/all")
 def read_all():
-    # return dict(db.find())
     response = db.find()
-    print("Type of response: ", type(response))
-    print("Response: ", response)
 
-    for user in response:
-        print(user["_id"])
-        print(user["id"])
-        print(user["name"])
-        print(user["roll_no"])
-        print(user["email_verified"])
+    return (usersEntity(response))
 
-
-    return {"detail": "All users"}
-    # return dict(response)
 
 # TODO: Remove this route
 @app.get("/dump")
