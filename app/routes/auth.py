@@ -86,33 +86,6 @@ async def me(current_user: SystemUser = Depends(get_current_user)):
     return current_user
 
 
-@auth.post('/firebase/token/add', response_model=UserOut)
-async def add_firebase_token(user: UserAuth):
-    # Find user
-    user = db.find_one({"roll_no": int(user.roll_no)})
-
-    # Check if user exists
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Roll Number not found",
-        )
-
-    # Check if password is correct
-    if not verify_password(user.password, user["password"]):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Your roll number or password is incorrect",
-        )
-
-    # Update user
-    db.update_one({"roll_no": user["roll_no"]}, {
-                  "$set": {"firebase_token": user.firebase_token}})
-
-    # Return user
-    return user
-
-
 @auth.post("/reset-password")
 async def reset_password(password_reset: PasswordReset):
     user = db.find_one({"roll_no": password_reset.roll_no})

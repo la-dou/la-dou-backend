@@ -19,7 +19,7 @@ class UserSignup(UserAuth):
     phone_number: str = Field(..., description="user phone number")
     email_verified: bool = False
     phone_verified: bool = False
-    fcm_registration_token: List[str] = []
+    fcm_device_token: List[str] = []
     customer: Customer = None
     driver: Driver = None
     
@@ -42,7 +42,7 @@ class User(UserOut):
     gender: str
     email_verified: bool = False
     phone_verified: bool = False
-    fcm_registration_token: List[str] = []
+    fcm_device_token: List[str] = []
     customer: Customer = None
     driver: Driver = None
 

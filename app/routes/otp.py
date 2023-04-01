@@ -6,7 +6,7 @@ from ..utils.otp import generate_OTP, verify_OTP, send_email
 otp_router = APIRouter()
 
 
-@otp_router.post("/otp/email/generate")
+@otp_router.post("/email/generate")
 async def generate_email_otp(roll_no: int):
     otp = generate_OTP(roll_no)
     # send otp to the user
@@ -15,7 +15,7 @@ async def generate_email_otp(roll_no: int):
     return {"message": "OTP sent to your email"}
 
 
-@otp_router.post("/otp/email/verify", response_model=dict())
+@otp_router.post("/email/verify", response_model=dict())
 async def verify_email_otp(data: VerifyOTP):
     verification_result, message = verify_OTP(data.roll_no, data.otp)
 
@@ -45,7 +45,7 @@ async def verify_email_otp(data: VerifyOTP):
 
     return False
 
-@otp_router.post("/opt/phone/generate")
+@otp_router.post("/phone/generate")
 async def generate_phone_otp(roll_no: str):
     '''
     Generate OTP and send it to the user's phone number
@@ -53,7 +53,7 @@ async def generate_phone_otp(roll_no: str):
     '''
     pass #TODO: Implement this
 
-@otp_router.post("/otp/phone/verify", response_model=bool)
+@otp_router.post("/phone/verify", response_model=bool)
 async def verify_phone_otp(roll_no: str, otp: int):
     '''
     Generate OTP and send it to the user's phone number
