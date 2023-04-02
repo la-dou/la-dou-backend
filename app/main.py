@@ -1,3 +1,7 @@
+from .config.database import db
+from .schemas.user import usersEntity
+from .routes.user import user
+from .routes.rating import ratings_router
 from typing import Union
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -5,10 +9,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from .routes.auth import auth
 from .routes.otp import otp_router
 from .routes.fcm import fcm
-
-from .schemas.user import usersEntity
-
-from .config.database import db
+<< << << < Updated upstream
+== == == =
+>>>>>> > Stashed changes
 
 
 app = FastAPI()
@@ -23,8 +26,12 @@ app.add_middleware(
 )
 
 app.include_router(auth)
-app.include_router(otp_router, prefix="/otp", tags=["User Verification using OTP"])
-app.include_router(fcm, prefix="/fcm", tags=["FCM (Firebase Cloud Messaging) Token Management"])
+app.include_router(otp_router, prefix="/otp",
+                   tags=["User Verification using OTP"])
+app.include_router(fcm, prefix="/fcm",
+                   tags=["FCM (Firebase Cloud Messaging) Token Management"])
+app.include_router(user, tags=["User Management"])
+app.include_router(ratings_router, tags=["Ratings"])
 
 
 @app.on_event("startup")

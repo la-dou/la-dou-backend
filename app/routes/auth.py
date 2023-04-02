@@ -81,11 +81,6 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
 
 
-@auth.get('/me', response_model=UserOut)
-async def me(current_user: SystemUser = Depends(get_current_user)):
-    return current_user
-
-
 @auth.post("/reset-password")
 async def reset_password(password_reset: PasswordReset):
     user = db.find_one({"roll_no": password_reset.roll_no})
