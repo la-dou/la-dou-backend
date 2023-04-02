@@ -22,7 +22,7 @@ class UserSignup(UserAuth):
     fcm_device_token: List[str] = []
     customer: Customer = None
     driver: Driver = None
-    
+
 
 class UserOut(BaseModel):
     name: str
@@ -46,7 +46,19 @@ class User(UserOut):
     customer: Customer = None
     driver: Driver = None
 
+
 class PasswordReset(BaseModel):
     roll_no: int = Field(..., description="roll number of the user")
-    verification_token: str = Field(..., description="verification token for the user")
+    verification_token: str = Field(...,
+                                    description="verification token for the user")
     password: str = Field(..., description="new password for the user")
+
+
+class PasswordUpdate(BaseModel):
+    old_password: str = Field(..., description="old password of the user")
+    new_password: str = Field(..., description="new password for the user")
+
+
+class PhoneUpdate(BaseModel):
+    phone_number: str = Field(..., description="new phone number for the user")
+    old_password: str = Field(..., description="old password of the user")
