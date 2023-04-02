@@ -11,6 +11,8 @@ import os
 OTP_DICTIONARY = {} # this stores the otp and time stamp for 5 minutes
 VERIFICATION_TOKENS = {} # this stores a token for 30 minutes after the otp is verified
 
+OTP_TIMEOUT_SECONDS = 300
+
 
 def generate_OTP(client_id: int):
     otp = random.randint(1000, 9999)
@@ -29,7 +31,7 @@ def verify_OTP(client_id: int, otp: int):
         # check if the otp is correct
         if stored_otp == otp:
             # check if the otp is not expired
-            if (datetime.now() - stored_time_stamp).total_seconds() < 300:
+            if (datetime.now() - stored_time_stamp).total_seconds() < OTP_TIMEOUT_SECONDS:
                 # delete the otp from the dictionary
                 del OTP_DICTIONARY[client_id]
                 # generate a token
