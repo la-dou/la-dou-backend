@@ -29,19 +29,8 @@ async def signup(userInfo: UserSignup):
     # Hash password
     hashed_password = get_hashed_password(userInfo.password)
 
-    # # Create user
-    # user : User = {
-    #     "id": str(uuid4()),
-    #     "roll_no": userInfo.roll_no,
-    #     "name": userInfo.name,
-    #     "password": hashed_password,
-    #     "phone_number": userInfo.phone_number,
-    #     "gender"   : userInfo.gender,
-    # }
+   
     userInfo.password = hashed_password
-    # user: UserSignup = UserSignup(**userInfo.dict())
-
-    # user.password = hashed_password
 
     # Insert user
     print(userInfo.dict())
