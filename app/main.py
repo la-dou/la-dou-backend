@@ -4,6 +4,7 @@ from .routes.auth import auth
 from .routes.otp import otp_router
 from .routes.fcm import fcm
 from .routes.user import user
+from .routes.rating import ratings_router
 from .config.database import db
 
 
@@ -24,6 +25,7 @@ app.include_router(otp_router, prefix="/otp",
 app.include_router(fcm, prefix="/fcm",
                    tags=["FCM (Firebase Cloud Messaging) Token Management"])
 app.include_router(user, tags=["User Management"])
+app.include_router(ratings_router, tags=["Ratings"])
 
 
 @app.on_event("startup")
@@ -38,23 +40,11 @@ def read_root():
 
 @app.get("/all")
 def read_all():
-    # return dict(db.find())
     response = db.find()
-    print("Type of response: ", type(response))
-    print("Response: ", response)
+    return (usersEntity(response))
 
-    for user in response:
-        print(user["_id"])
-        print(user["name"])
-        print(user["roll_no"])
-        print(user["email_verified"])
-
-    return {"detail": "All users"}
-    # return dict(response)
 
 # TODO: Remove this route
-
-
 @app.get("/dump")
 def dump():
     db.drop()
