@@ -5,8 +5,7 @@ from ..utils.hashing import (
     get_hashed_password, create_access_token, create_refresh_token, verify_password)
 
 from ..models.token import TokenSchema
-from ..models.user import UserOut, UserAuth, SystemUser, UserSignup, PasswordReset
-from ..models.user import User
+from ..models.user import UserOut, UserSignup, PasswordReset
 from ..config.database import db
 from ..config.deps import get_current_user
 from ..utils.otp import verify_token
