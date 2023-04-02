@@ -23,8 +23,10 @@ app.add_middleware(
 )
 
 app.include_router(auth)
-app.include_router(otp_router, prefix="/otp", tags=["User Verification using OTP"])
-app.include_router(fcm, prefix="/fcm", tags=["FCM (Firebase Cloud Messaging) Token Management"])
+app.include_router(otp_router, prefix="/otp",
+                   tags=["User Verification using OTP"])
+app.include_router(fcm, prefix="/fcm",
+                   tags=["FCM (Firebase Cloud Messaging) Token Management"])
 
 
 @app.on_event("startup")
@@ -39,23 +41,11 @@ def read_root():
 
 @app.get("/all")
 def read_all():
-    # return dict(db.find())
     response = db.find()
-    print("Type of response: ", type(response))
-    print("Response: ", response)
+    return (usersEntity(response))
 
-    for user in response:
-        print(user["_id"])
-        print(user["name"])
-        print(user["roll_no"])
-        print(user["email_verified"])
-
-    return {"detail": "All users"}
-    # return dict(response)
 
 # TODO: Remove this route
-
-
 @app.get("/dump")
 def dump():
     db.drop()
