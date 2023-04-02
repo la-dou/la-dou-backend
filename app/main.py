@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .routes.auth import auth
 from .routes.otp import otp_router
 from .routes.fcm import fcm
+from .routes.rating import ratings_router
 
 from .schemas.user import usersEntity
 
@@ -27,6 +28,8 @@ app.include_router(otp_router, prefix="/otp",
                    tags=["User Verification using OTP"])
 app.include_router(fcm, prefix="/fcm",
                    tags=["FCM (Firebase Cloud Messaging) Token Management"])
+app.include_router(ratings_router, tags=["Ratings"])
+
 
 
 @app.on_event("startup")
