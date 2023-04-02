@@ -9,7 +9,19 @@ user = APIRouter()
 
 @user.get('/me', response_model=UserOut)
 async def me(current_user: SystemUser = Depends(get_current_user)):
-    return current_user
+    # fetch user from db
+    user = db.find_one({"roll_no": current_user.roll_no})
+    response = UserOut(**user)
+    # check if Driver Mode is enabled
+    if not user["driver"]:
+        response.driver_disabled = False
+    else:
+        response.driver_disabled = user["driver"]["deactivated"]
+    if not user["customer"]:
+        response.customer_disabled = False
+    else:
+        response.customer_disabled = user["customer"]["deactivated"]
+    return response
 
 
 @user.post('/update-password', response_model=bool)

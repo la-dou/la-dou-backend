@@ -31,6 +31,8 @@ class UserOut(BaseModel):
     phone_number: str
     email_verified: Optional[bool]
     phone_verified: Optional[bool]
+    driver_disabled: Optional[bool]
+    customer_disabled: Optional[bool]
 
 
 class SystemUser(UserOut):
