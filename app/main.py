@@ -6,6 +6,7 @@ from .routes.fcm import fcm
 from .routes.user import user
 from .routes.rating import ratings_router
 from .config.database import db
+from .schemas.user import usersEntity
 
 
 app = FastAPI()

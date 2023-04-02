@@ -1,8 +1,7 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, Depends
 
 from ..config.database import db
 from ..models.user import UserOut, SystemUser
-from ..utils.hashing import verify_password
 from ..config.deps import get_current_user
 
 fcm = APIRouter()
