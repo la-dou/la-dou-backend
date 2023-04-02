@@ -11,7 +11,7 @@ class BaseOrder(BaseModel):
     status: str = "pending" # status of the order
     
 class CustomerOrder(BaseOrder):
-    driver_roll_no: int # roll no of the driver who accepted the order
+    driver_roll_no: int = -1 # roll no of the driver who accepted the order
     
 class DriverOrder(BaseOrder):
-    customer_roll_no: int # roll no of the customer who placed the order
+    customer_roll_no: int = -1 # roll no of the customer who placed the order
