@@ -5,8 +5,7 @@ from ..utils.hashing import (
     get_hashed_password, create_access_token, create_refresh_token, verify_password)
 
 from ..models.token import TokenSchema
-from ..models.user import UserOut, UserAuth, SystemUser, UserSignup, PasswordReset
-from ..models.user import User
+from ..models.user import UserOut, UserSignup, PasswordReset
 from ..config.database import db
 from ..config.deps import get_current_user
 from ..utils.otp import verify_token
@@ -29,19 +28,8 @@ async def signup(userInfo: UserSignup):
     # Hash password
     hashed_password = get_hashed_password(userInfo.password)
 
-    # # Create user
-    # user : User = {
-    #     "id": str(uuid4()),
-    #     "roll_no": userInfo.roll_no,
-    #     "name": userInfo.name,
-    #     "password": hashed_password,
-    #     "phone_number": userInfo.phone_number,
-    #     "gender"   : userInfo.gender,
-    # }
+   
     userInfo.password = hashed_password
-    # user: UserSignup = UserSignup(**userInfo.dict())
-
-    # user.password = hashed_password
 
     # Insert user
     print(userInfo.dict())
