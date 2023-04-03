@@ -4,6 +4,7 @@ from .routes.auth import auth
 from .routes.otp import otp_router
 from .routes.fcm import fcm
 from .routes.user import user
+from .routes.order import order_router
 from .routes.rating import ratings_router
 from .config.database import db
 from .schemas.user import usersEntity
@@ -27,7 +28,7 @@ app.include_router(fcm, prefix="/fcm",
                    tags=["FCM (Firebase Cloud Messaging) Token Management"])
 app.include_router(user, tags=["User Management"])
 app.include_router(ratings_router, tags=["Ratings"])
-
+app.include_router(order_router, tags=["Order Management"])
 
 @app.on_event("startup")
 async def startup():
