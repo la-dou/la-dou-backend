@@ -81,19 +81,22 @@ async def bid_on_order(customer_roll_num: int, driver_roll_num: int, amount: int
 
 # # View all Bids
 @order_router.get("/customer/order/viewbids/{customer_roll_num}")
-async def view_bids(customer_roll_num):
+async def view_bids(customer_roll_num: int):
     '''
     Uses the global bids variable to view all bids for a customer
     Returns a dictionary of bids (key: driver_roll_no, value: bid)
     '''
 
     # Check if the customer exists by roll number
-    customer = db.find_one({"roll_no": customer_roll_num})
+    customer = db.find_one({"roll_no": int(customer_roll_num)})
     if not customer:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Customer not found",
         )
+    
+    if not bids[customer_roll_num]:
+        return {"detail": "No bids yet"}
     
     return bids[customer_roll_num]
 
