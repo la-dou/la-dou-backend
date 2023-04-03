@@ -1,4 +1,5 @@
-from fastapi import APIRouter, status, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
+from ..config.deps import get_current_user
 from ..config.database import db
 
 from ..models.order import CustomerOrder, DriverOrder
@@ -10,24 +11,17 @@ order_router = APIRouter()
 bids = {} # key: customer_roll_no, value: dict of bids (key: driver_roll_no, value: bid)
 
 # Post Order
-@order_router.post("/customer/order/create/{customer_roll_num}")
-async def create_order(customer_order: CustomerOrder, customer_roll_num: int):
+@order_router.post("/customer/order/create/")
+async def create_order(customer_order: CustomerOrder, user = Depends(get_current_user)):
     '''
     Create an order by a Customer
     When a customer creates an order, the order is inserted into the database
     Initially the information is incomplete, as the driver has not accepted the order yet
     The driver will accept the order and update the order with the driver's roll number
     '''
-
-    # Check if the customer exists by roll number
-    customer = db.find_one({"roll_no": customer_roll_num})
-
-    if not customer:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Customer not found",
-        )
     
+    customer_roll_num = user.roll_no
+
     # Check if the customer made a previous order
     if customer_roll_num in bids:
         print("This customer already has an order in progress!")
@@ -44,7 +38,6 @@ async def create_order(customer_order: CustomerOrder, customer_roll_num: int):
         {"roll_no": customer_roll_num},
         {"$push": {"orders": customer_order.dict()}},
     )
-
 
     return {"detail": "Order created successfully"}
 
