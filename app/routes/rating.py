@@ -6,7 +6,7 @@ from ..models.rating import Rating
 ratings_router = APIRouter()
 
 # get the rating of a driver
-@ratings_router.get("/driver_rating/{roll_no}")
+@ratings_router.get("/driver")
 async def get_rating_driver(roll_no: str):
 
     try:
@@ -46,7 +46,7 @@ async def get_rating_driver(roll_no: str):
 
 
 # update the rating of a driver
-@ratings_router.post("/driver_rating/{roll_no}")
+@ratings_router.post("/driver")
 async def update_rating_driver(roll_no: str, rating: int):
 
     # rating should be between 0 and 5
@@ -114,7 +114,7 @@ async def update_rating_driver(roll_no: str, rating: int):
     return {"message": "success"}
 
 # get the rating of a customer
-@ratings_router.get("/customer_rating/{roll_no}")
+@ratings_router.get("/customer")
 async def get_rating_customer(roll_no: str):
 
     try:
@@ -154,7 +154,7 @@ async def get_rating_customer(roll_no: str):
 
 
 # update the rating of a customer
-@ratings_router.post("/customer_rating/{roll_no}")
+@ratings_router.post("/customer")
 async def update_rating_customer(roll_no: str, rating: int):
 
     # rating should be between 0 and 5
