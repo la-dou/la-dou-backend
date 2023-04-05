@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 from pydantic import BaseModel, Field
 from .customer import Customer
 from .driver import Driver
@@ -63,3 +63,11 @@ class PasswordUpdate(BaseModel):
 class PhoneUpdate(BaseModel):
     phone_number: str = Field(..., description="new phone number for the user")
     old_password: str = Field(..., description="old password of the user")
+
+
+class UserSearch(BaseModel):
+    name: str
+    roll_no: int
+    rating_as_driver: Union [float, str]
+    rating_as_customer: Union [float, str]
+
