@@ -6,6 +6,7 @@ from .routes.fcm import fcm
 from .routes.user import user
 from .routes.order import order_router
 from .routes.rating import ratings_router
+from .routes.chat import chat
 from .config.database import db
 from .schemas.user import usersEntity
 
@@ -29,6 +30,7 @@ app.include_router(fcm, prefix="/fcm",
 app.include_router(user, tags=["User Management"])
 app.include_router(ratings_router, prefix="/rate", tags=["Ratings"])
 app.include_router(order_router, tags=["Order Management"])
+app.include_router(chat, tags=["Chat"])
 
 @app.on_event("startup")
 async def startup():
