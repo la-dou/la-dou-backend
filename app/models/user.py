@@ -65,9 +65,22 @@ class PhoneUpdate(BaseModel):
     old_password: str = Field(..., description="old password of the user")
 
 
+
+## used for admin search route
 class UserSearch(BaseModel):
     name: str
     roll_no: int
     rating_as_driver: Union [float, str]
     rating_as_customer: Union [float, str]
+    phone_number: str
+    deactivated_customer: bool
+    deactivated_driver: bool
+    count_as_customer: int
+    count_as_driver: int
+    amount_as_customer: int
+    amount_as_driver: int
+    
+
+
+
 
