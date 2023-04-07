@@ -101,55 +101,59 @@ async def view_bids(customer_roll_num: int):
     return bids[customer_roll_num]
 
 # # Accept Bid (remove bids global var key)
-# @order_router.post("/customer/order/acceptbid/{driver_roll_num}")
-# async def accept_bid(customer_roll_num: int, driver_roll_num: int):
-#     '''
-#     Fetch the bidding price from the bids global variable
-#     Update the order in the database with the driver_roll_no and delivery_price
-#     Remove the bids global variable key
-    # Later, the following information will be added to the order:
-    # - driver_roll_no
-    # - delivery_price
-    # - status
-    # - delivered_at
-#     '''
+@order_router.post("/customer/order/acceptbid/{driver_roll_num}")
+async def accept_bid(customer_roll_num: int, driver_roll_num: int):
+    '''
+    Fetch the bidding price from the bids global variable
+    Update the order in the database with the driver_roll_no and delivery_price
+    Remove the bids global variable key
+    Later, the following information will be added to the order:
+    - driver_roll_no
+    - delivery_price
+    - status
+    - delivered_at
+    '''
 
-#     # Check if the customer exists by roll number
-#     customer = db.find_one({"roll_no": customer_roll_num})
-#     if not customer:
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND,
-#             detail="Customer not found",
-#         )
+    # Check if the customer exists by roll number
+    customer = db.find_one({"roll_no": customer_roll_num})
+    if not customer:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Customer not found",
+        )
     
-#     # Check if the driver exists by roll number
-#     driver = db.find_one({"roll_no": driver_roll_num})
-#     if not driver:
-#         raise HTTPException(
-#             status_code=status.HTTP_404_NOT_FOUND,
-#             detail="Driver not found",
-#         )
+    # Check if the driver exists by roll number
+    driver = db.find_one({"roll_no": driver_roll_num})
+    if not driver:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Driver not found",
+        )
     
-#     # Fetch the bidding price from the bids global variable
-#     delivery_price = bids[customer_roll_num][driver_roll_num]
+    # Fetch the bidding price from the bids global variable
+    delivery_price = bids[customer_roll_num][driver_roll_num]
 
-#     # Update the order in the database with the driver_roll_no and delivery_price
-#     # Go inside the orders array of the Customer object
-#     # Find the order with the driver_roll_no and delivery_price
-#     # Update the order with the driver_roll_no and delivery_price
-#     db.update_one(
-#         # Find the Customer object
-#         {"roll_no": customer_roll_num},
-#         # Update the order with the driver_roll_no and delivery_price
-#         {
-#             "$set": {
-#                 "orders.$[order].driver_roll_no": driver_roll_num, 
-#                 "orders.$[order].delivery_price": delivery_price
-#             }
-#         }
-#     )
+    # Update the last order in the database made by customer_roll_no with the driver_roll_no and delivery_price
+    db.update_one({
+        "roll_no": customer_roll_num,
+        "orders": {
+            "$elemMatch": {
+                "driver_roll_no": -1,
+                "delivery_price": -1
+            }
+    }
+    }, {
+        "$set": {
+            "orders.$.driver_roll_no": driver_roll_num,
+            "orders.$.delivery_price": delivery_price
+        }
+    })
 
-#     # Remove the bids global variable key
-#     del bids[customer_roll_num]
+    # Remove the bids global variable key now that the bid has been accepted
+    del bids[customer_roll_num]
 
-#     return {"detail": "Bid accepted successfully"}
+    return {
+        "customer_roll_no": customer_roll_num,
+        "driver_roll_no": driver_roll_num,
+        "delivery_price": delivery_price
+    }
