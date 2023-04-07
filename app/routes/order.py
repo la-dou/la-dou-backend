@@ -157,3 +157,45 @@ async def accept_bid(customer_roll_num: int, driver_roll_num: int):
         "driver_roll_no": driver_roll_num,
         "delivery_price": delivery_price
     }
+
+# # Update Job Status
+@order_router.post("/driver/order/updatestatus")
+async def update_job_status(customer_roll_num: int, driver_roll_num: int, status: str):
+    '''
+    Update the status of the order in the database
+    Updates the status of the order in the database for the customer
+    '''
+
+    # Check if the customer exists by roll number
+    customer = db.find_one({"roll_no": customer_roll_num})
+    if not customer:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Customer not found",
+        )
+    
+    # Check if the driver exists by roll number
+    driver = db.find_one({"roll_no": driver_roll_num})
+    if not driver:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Driver not found",
+        )
+    
+    # Update the last order in the orders list of the customer with the status
+    db.update_one({
+        "roll_no": customer_roll_num,
+        "orders": {
+            "$elemMatch": {
+                "driver_roll_no": driver_roll_num,
+                "status": {"$ne": "done"} # status should not be "done"
+            }
+    }
+    }, {
+        "$set": {
+            "orders.$.status": status
+        }
+    })
+
+    return {"status": status}
+
