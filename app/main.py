@@ -30,7 +30,7 @@ app.include_router(otp_router, prefix="/otp",
 app.include_router(fcm, prefix="/fcm",
                    tags=["FCM (Firebase Cloud Messaging) Token Management"])
 app.include_router(user, tags=["User Management"])
-app.include_router(ratings_router, prefix="/rate", tags=["Ratings"])
+app.include_router(ratings_router, prefix="/rating", tags=["Ratings"])
 app.include_router(order_router, tags=["Order Management"])
 app.include_router(chat, tags=["Chat"])
 app.include_router(admin, prefix="/admin", tags=["Admin Management"])
