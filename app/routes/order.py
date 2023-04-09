@@ -215,8 +215,11 @@ async def update_job_status(order_status: str, user=Depends(get_current_user)):
 
 
 # # Get Job Status
-@ order_router.get("/customer/order/getStatus/")
+@ order_router.get("/customer/order/getStatus")
 async def getOrderStatus(user=Depends(get_current_user)):
+    """ 
+    Get the status of the order for the customer    
+    """
 
     customer_roll_no=user.roll_no
 
@@ -260,19 +263,41 @@ async def getOrderStatus(user=Depends(get_current_user)):
 
 
 # get all orders of a customer
-@ order_router.get("/customer/order/getAllOrders/")
+@ order_router.get("/customer/order/getAllOrders")
 async def getAllOrders(user=Depends(get_current_user)):
+    """ 
+    Get all orders of the customer
+    """
+    
     customer_roll_no=user.roll_no
 
     orders=db.find_one({"roll_no": customer_roll_no})
     orders=orders["customer"]["orders"]
+    
+    # Make an OrderHistory object for each order
+    orders_list=[]
+    
+    for order in orders:
+        orderHistory = {
+            "order_id": order["order_id"],
+            "deliver_to": order["deliver_to"],
+            "order_amount": order["order_amount"],
+            "placed_at": order["placed_at"],
+            "driver_name": "No Driver Yet" if order["driver_roll_no"] == -1 else db.find_one({"roll_no": order["driver_roll_no"]})["name"],
+        }
+        
+        orders_list.append(orderHistory)
 
-    return {"orders": orders}
+    return orders_list
 
 
 # remove all orders of a customer
-@ order_router.delete("/customer/order/removeAllOrders/")
+@ order_router.delete("/customer/order/removeAllOrders")
 async def removeAllOrders(user=Depends(get_current_user)):
+    """ 
+    Remove all orders of the customer
+    """
+    
     customer_roll_no=user.roll_no
 
     response=db.find_one({"roll_no": customer_roll_no})
