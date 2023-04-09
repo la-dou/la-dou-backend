@@ -185,45 +185,33 @@ async def accept_bid(customer_roll_num: int, driver_roll_num: int):
     }
 
 # # Update Job Status
-@order_router.post("/driver/order/updatestatus")
-async def update_job_status(customer_roll_num: int, driver_roll_num: int, status: str):
+@order_router.post("/driver/order/updatestatus/{order_status}")
+async def update_job_status(order_status: str, user=Depends(get_current_user)):
     '''
     Update the status of the order in the database
     Updates the status of the order in the database for the customer
     '''
 
-    # Check if the customer exists by roll number
-    customer = db.find_one({"roll_no": customer_roll_num})
-    if not customer:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Customer not found",
-        )
-    
-    # Check if the driver exists by roll number
-    driver = db.find_one({"roll_no": driver_roll_num})
-    if not driver:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Driver not found",
-        )
-    
-    # Update the last order in the orders list of the customer with the status
-    db.update_one({
-        "roll_no": customer_roll_num,
-        "orders": {
-            "$elemMatch": {
-                "driver_roll_no": driver_roll_num,
-                "status": {"$ne": "done"} # status should not be "done"
-            }
-    }
-    }, {
-        "$set": {
-            "orders.$.status": status
-        }
-    })
+    customer_roll_num = user.roll_no
 
-    return {"status": status}
+    # Update the last order in the orders list of the customer with the order_status. match the customer_roll_no, and from customer.orders, find the last order with status not done or cancelled and update that order's status
+
+    response = db.find_one({"roll_no": customer_roll_num})
+
+    for order in response["customer"]["orders"]:
+        if order["status"] != "done" or order["status"] != "cancelled":
+            order["status"] = order_status
+            break
+    
+    response = db.update_one({"roll_no": customer_roll_num}, {"$set": {"customer": response["customer"]}})
+
+    if response.modified_count == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No orders found",
+        )
+
+    return {"status": order_status}
 
 @order_router.get("/customer/order/getStatus/")
 async def getOrderStatus(user = Depends(get_current_user)):
@@ -256,10 +244,10 @@ async def getOrderStatus(user = Depends(get_current_user)):
     
     try:
         # find the status of the recent order
-        status = recent_order["status"]
+        order_status = recent_order["status"]
         driver = recent_order["driver_roll_no"]
     except:
-        status = "null"
+        order_status = "null"
         driver = "null"
 
     try:
@@ -270,7 +258,7 @@ async def getOrderStatus(user = Depends(get_current_user)):
         driver_name = "null"
 
     return {
-        "status": status,
+        "status": order_status,
         "driver": driver_name
     }
     
@@ -279,7 +267,7 @@ async def getOrderStatus(user = Depends(get_current_user)):
 async def getAllOrders(user = Depends(get_current_user)):
     customer_roll_num = user.roll_no
 
-    orders = db.find_one({"roll_no": customer_roll_num}, {"orders": 1, "_id": 0})
-    orders = orders["orders"]
+    orders = db.find_one({"roll_no": customer_roll_num})
+    orders = orders["customer"]["orders"]
 
     return {"orders": orders}
