@@ -3,6 +3,7 @@ from ..config.deps import get_current_user
 from ..config.database import db
 
 from ..models.order import CustomerOrder, DriverOrder
+from ..schemas.order import orderEntity, ordersEntity, listOrdersEntity
 
 order_router = APIRouter()
 
@@ -20,6 +21,8 @@ async def create_order(customer_order: CustomerOrder, user = Depends(get_current
     The driver will accept the order and update the order with the driver's roll number
     '''
     
+    print(f"Customer order: {customer_order}")
+    
     customer_roll_num = user.roll_no
 
     # Check if the customer made a previous order
@@ -33,13 +36,32 @@ async def create_order(customer_order: CustomerOrder, user = Depends(get_current
     # Update bids global variable
     bids[customer_roll_num] = {}
 
-    # Insert the order into the orders array for the Customer object
+    
+    # Insert the order to the customer's orders array
     db.update_one(
         {"roll_no": customer_roll_num},
-        {"$push": {"orders": customer_order.dict()}},
+        {"$push": {"customer.orders": customer_order.dict()}},
     )
 
     return {"detail": "Order created successfully"}
+
+# Retrieve All Pending Orders From The Database
+@order_router.get("/driver/order/viewall")
+async def view_all_orders(user = Depends(get_current_user)):
+    '''
+        Retrieve all pending orders from the database
+    '''
+    
+    # Query the database for all orders where status is pending
+    users = db.find({"customer.orders.status": "pending"})
+    
+    # Get the orders from the cursor object
+    orders = [user["customer"]["orders"] for user in users]
+    
+    # Convert the cursor object to a list of dictionaries
+    orders = list(orders)
+    
+    return listOrdersEntity(orders)
 
 # Bid on Job
 @order_router.post("/driver/order/bid")
@@ -86,6 +108,8 @@ async def view_bids(customer_roll_num: int):
     Uses the global bids variable to view all bids for a customer
     Returns a dictionary of bids (key: driver_roll_no, value: bid)
     '''
+    
+    print(f"Bids: {bids}")
 
     # Check if the customer exists by roll number
     customer = db.find_one({"roll_no": int(customer_roll_num)})
@@ -99,6 +123,8 @@ async def view_bids(customer_roll_num: int):
         return {"detail": "No bids yet"}
     
     return bids[customer_roll_num]
+
+
 
 # # Accept Bid (remove bids global var key)
 @order_router.post("/customer/order/acceptbid/{driver_roll_num}")

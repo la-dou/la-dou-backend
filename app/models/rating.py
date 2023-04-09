@@ -1,5 +1,5 @@
 from pydantic import BaseModel
 
 class Rating(BaseModel):
-    sum: int
-    count: int                  
+    sum: int = 0
+    count: int = 0                

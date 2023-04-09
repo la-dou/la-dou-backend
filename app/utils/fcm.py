@@ -17,7 +17,7 @@ def send_notification(title: str, body: str, token: str):
         token=token
     )
     response = messaging.send(message)
-    print("Successfully sent message:", response)
+    # print("Successfully sent message:", response)
 
 
 def send_notification_to_user(title: str, body: str, roll_no: int):
@@ -32,4 +32,4 @@ def send_notification_to_user(title: str, body: str, roll_no: int):
         tokens=user["fcm_device_token"]
     )
     response = messaging.send_multicast(message)
-    print("Successfully sent message:", response)
+    # print("Successfully sent message:", response)

@@ -1,6 +1,8 @@
 from pydantic import BaseModel
+from uuid import uuid4, UUID
 
 class BaseOrder(BaseModel):
+    order_id: UUID = uuid4().hex # unique id of the order
     deliver_to: str = "" # where to deliver the order
     deliver_from: str = "" # where to pick up the order
     notes: str = "" # any additional notes
