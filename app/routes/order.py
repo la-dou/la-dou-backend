@@ -61,7 +61,12 @@ async def view_all_orders(user = Depends(get_current_user)):
     # Convert the cursor object to a list of dictionaries
     orders = list(orders)
     
-    return listOrdersEntity(orders)
+    orders = listOrdersEntity(orders)
+    
+    # Orders is a list of lists of dictionaries, so flatten it
+    orders = [order for sublist in orders for order in sublist]
+    
+    return orders
 
 # Bid on Job
 @order_router.post("/driver/order/bid")
