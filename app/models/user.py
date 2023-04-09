@@ -19,8 +19,8 @@ class UserSignup(UserAuth):
     email_verified: bool = False
     phone_verified: bool = False
     fcm_device_token: List[str] = []
-    customer: Customer = None
-    driver: Driver = None
+    customer: Customer = Customer(deactivated=False)
+    driver: Driver = Driver(deactivated=False)
 
 
 class UserOut(BaseModel):

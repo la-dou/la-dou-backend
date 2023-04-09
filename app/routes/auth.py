@@ -32,7 +32,7 @@ async def signup(userInfo: UserSignup):
     userInfo.password = hashed_password
 
     # Insert user
-    print(userInfo.dict())
+    # print(userInfo.dict())
     db.insert_one(userInfo.dict())
 
     # Return user

@@ -59,12 +59,13 @@ async def send_email(email: str, otp):
         response = sg.send(message)
         return response
     except Exception as e:
-        print("Error encountered:")
-        print(e.message)
+        # print("Error encountered:")
+        # print(e.message)
+        pass
 
 
 def verify_token(client_id: int, token: str):
-    print(VERIFICATION_TOKENS, client_id, token)
+    # print(VERIFICATION_TOKENS, client_id, token)
     if client_id in VERIFICATION_TOKENS:
         stored_token, stored_time_stamp = VERIFICATION_TOKENS[client_id]
         # check if the token is correct
