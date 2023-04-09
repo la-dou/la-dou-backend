@@ -225,3 +225,61 @@ async def update_job_status(customer_roll_num: int, driver_roll_num: int, status
 
     return {"status": status}
 
+@order_router.get("/customer/order/getStatus/")
+async def getOrderStatus(user = Depends(get_current_user)):
+
+    customer_roll_num = user.roll_no
+
+    # find the recent order of the customer
+    try:
+        recent_order = db.find_one({
+            "roll_no": customer_roll_num,
+            "orders": {
+                "$elemMatch": {
+                    "status": {"$ne": "done"},
+                    "status": {"$ne": "cancelled"}
+                }
+        }})
+
+        for order in recent_order["customer"]["orders"]:
+            if order["status"] != "done" or order["status"] != "cancelled":
+                recent_order = order
+                break
+
+        print("recent_order : ", recent_order)
+
+    except:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No orders found",
+        )
+    
+    try:
+        # find the status of the recent order
+        status = recent_order["status"]
+        driver = recent_order["driver_roll_no"]
+    except:
+        status = "null"
+        driver = "null"
+
+    try:
+        # find the name of the driver
+        driver = db.find_one({"roll_no": driver})
+        driver_name = driver["name"]
+    except:
+        driver_name = "null"
+
+    return {
+        "status": status,
+        "driver": driver_name
+    }
+    
+# get all orders of a customer
+@order_router.get("/customer/order/getAllOrders/")
+async def getAllOrders(user = Depends(get_current_user)):
+    customer_roll_num = user.roll_no
+
+    orders = db.find_one({"roll_no": customer_roll_num}, {"orders": 1, "_id": 0})
+    orders = orders["orders"]
+
+    return {"orders": orders}
