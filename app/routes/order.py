@@ -245,14 +245,15 @@ async def getOrderStatus(user = Depends(get_current_user)):
 
     try:
         # find the name of the driver
-        driver = db.find_one({"roll_no": driver})
-        driver_name = driver["name"]
+        response = db.find_one({"roll_no": driver})
+        driver_name = response["name"]
     except:
         driver_name = "null"
 
     return {
-        "status": order_status,
-        "driver": driver_name
+        "order_status": order_status,
+        "driver_name": driver_name,
+        "driver_roll_no": driver
     }
     
 # get all orders of a customer
@@ -283,3 +284,27 @@ async def removeAllOrders(user = Depends(get_current_user)):
         )
 
     return {"detail": "All orders removed"}
+
+# endpoint to update the driver of the recent order
+@order_router.post("/customer/order/updateDriver/{driver_roll_no}")
+async def updateDriver(driver_roll_no: int, user = Depends(get_current_user)):
+    customer_roll_num = user.roll_no
+
+    # Update the last order in the orders list of the customer with the order_status. match the customer_roll_no, and from customer.orders, find the last order with status not done or cancelled and update that order's status
+
+    response = db.find_one({"roll_no": customer_roll_num})
+
+    for order in response["customer"]["orders"]:
+        if order["status"] != "done" or order["status"] != "cancelled":
+            order["driver_roll_no"] = driver_roll_no
+            break
+    
+    response = db.update_one({"roll_no": customer_roll_num}, {"$set": {"customer": response["customer"]}})
+
+    if response.modified_count == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No orders found",
+        )
+
+    return {"status": "success"}
