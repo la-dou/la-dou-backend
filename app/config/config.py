@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     MONGO_URI: str = ""
     SENDER_EMAIL: str
     SENDGRID_API_KEY: str
+    GOOGLE_APPLICATION_CREDENTIALS: dict
 
     class Config:
         env_file = ".env"

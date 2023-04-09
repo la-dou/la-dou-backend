@@ -29,7 +29,7 @@ async def get_current_user(token: str = Depends(reuseable_oauth)) -> SystemUser:
         )
         token_data = TokenPayload(**payload)
         
-        print(f"Token Data Exp: {token_data.exp}")
+        # print(f"Token Data Exp: {token_data.exp}")
         if datetime.fromtimestamp(token_data.exp) < datetime.now():
             raise HTTPException(
                 status_code = status.HTTP_401_UNAUTHORIZED,
@@ -45,7 +45,7 @@ async def get_current_user(token: str = Depends(reuseable_oauth)) -> SystemUser:
         
     # print(f"token_data.sub: {token_data.sub}")
     user = db.find_one({"roll_no" : int(token_data.sub)})
-    print(user)
+    # print(user)
     
     
     if user is None:

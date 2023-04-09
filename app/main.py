@@ -9,6 +9,8 @@ from .routes.rating import ratings_router
 from .routes.chat import chat
 from .config.database import db
 from .schemas.user import usersEntity
+from .routes.admin import admin
+from .models.user import UserSignup
 
 
 app = FastAPI()
@@ -31,6 +33,7 @@ app.include_router(user, tags=["User Management"])
 app.include_router(ratings_router, prefix="/rate", tags=["Ratings"])
 app.include_router(order_router, tags=["Order Management"])
 app.include_router(chat, tags=["Chat"])
+app.include_router(admin, prefix="/admin", tags=["Admin Management"])
 
 @app.on_event("startup")
 async def startup():
@@ -53,3 +56,14 @@ def read_all():
 def dump():
     db.drop()
     return {"detail": "Database dropped"}
+
+@app.get("/delete/user/{roll_no}") #used for testing only
+def delete_user(roll_no: int):
+    query = {"roll_no": roll_no}
+    db.delete_one(query)
+    return {"detail": "User deleted"}
+
+@app.post("/add/user/forced/{roll_no}")  #used for testing only
+def add_user(userInfo: UserSignup):
+    db.insert_one(userInfo.dict())
+

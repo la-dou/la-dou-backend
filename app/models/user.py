@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Union
 from pydantic import BaseModel, Field
 from .customer import Customer
 from .driver import Driver
@@ -19,8 +19,8 @@ class UserSignup(UserAuth):
     email_verified: bool = False
     phone_verified: bool = False
     fcm_device_token: List[str] = []
-    customer: Customer = None
-    driver: Driver = None
+    customer: Customer = Customer(deactivated=False)
+    driver: Driver = Driver(deactivated=False)
 
 
 class UserOut(BaseModel):
@@ -63,3 +63,24 @@ class PasswordUpdate(BaseModel):
 class PhoneUpdate(BaseModel):
     phone_number: str = Field(..., description="new phone number for the user")
     old_password: str = Field(..., description="old password of the user")
+
+
+
+## used for admin search route
+class UserSearch(BaseModel):
+    name: str
+    roll_no: int
+    rating_as_driver: Union [float, str]
+    rating_as_customer: Union [float, str]
+    phone_number: str
+    deactivated_customer: bool
+    deactivated_driver: bool
+    count_as_customer: int
+    count_as_driver: int
+    amount_as_customer: int
+    amount_as_driver: int
+    
+
+
+
+

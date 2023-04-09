@@ -5,6 +5,6 @@ from .order import DriverOrder
 
 
 class Driver(BaseModel):
-    deactivated: bool
-    rating: Rating
-    orders: List[DriverOrder]
+    deactivated: bool = False
+    rating: Rating = Rating()
+    orders: List[DriverOrder] = []
