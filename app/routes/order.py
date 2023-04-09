@@ -220,17 +220,10 @@ async def getOrderStatus(user = Depends(get_current_user)):
 
     # find the recent order of the customer
     try:
-        recent_order = db.find_one({
-            "roll_no": customer_roll_num,
-            "orders": {
-                "$elemMatch": {
-                    "status": {"$ne": "done"},
-                    "status": {"$ne": "cancelled"}
-                }
-        }})
 
-        for order in recent_order["customer"]["orders"]:
-            if order["status"] != "done" or order["status"] != "cancelled":
+        orders = db.find_one({"roll_no": customer_roll_num})["customer"]["orders"]
+        for order in orders:
+            if order["status"] != "done" and order["status"] != "cancelled":
                 recent_order = order
                 break
 
@@ -271,3 +264,22 @@ async def getAllOrders(user = Depends(get_current_user)):
     orders = orders["customer"]["orders"]
 
     return {"orders": orders}
+
+# remove all orders of a customer
+@order_router.delete("/customer/order/removeAllOrders/")
+async def removeAllOrders(user = Depends(get_current_user)):
+    customer_roll_num = user.roll_no
+
+    response = db.find_one({"roll_no": customer_roll_num})
+
+    response["customer"]["orders"] = []
+
+    response = db.update_one({"roll_no": customer_roll_num}, {"$set": {"customer": response["customer"]}})
+
+    if response.modified_count == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No orders found",
+        )
+
+    return {"detail": "All orders removed"}
