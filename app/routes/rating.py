@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, HTTPException
+from fastapi import APIRouter, status, HTTPException, Request
 from ..config.database import db
 
 from ..models.rating import Rating
@@ -46,9 +46,10 @@ async def get_rating_driver(roll_no: str):
 
 
 # update the rating of a driver
-@ratings_router.post("/driver")
+@ratings_router.post("/rate/driver")
 async def update_rating_driver(roll_no: str, rating: int):
 
+    print("Rating driver", roll_no, "with rating", rating)
     # rating should be between 0 and 5
     if rating < 0 or rating > 5:
         raise HTTPException(
@@ -69,6 +70,7 @@ async def update_rating_driver(roll_no: str, rating: int):
 
     # check if the user exists
     if not user:
+        print("User with roll number", roll_no, "not found")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
