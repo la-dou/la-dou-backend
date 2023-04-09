@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from datetime import datetime
+
 from ..config.deps import get_current_user
 from ..config.database import db
+
 
 from ..models.order import CustomerOrder, DriverOrder
 from ..schemas.order import orderEntity, ordersEntity, listOrdersEntity
@@ -67,6 +70,9 @@ async def view_all_orders(user=Depends(get_current_user)):
 
     # Orders is a list of lists of dictionaries, so flatten it
     orders = [order for sublist in orders for order in sublist]
+
+    # Remove all the orders that are not pending
+    orders = [order for order in orders if order["status"] == "pending"]
 
     # Query the database for all orders where status is pending
     users = db.find({"customer.orders.status": "pending"})
@@ -174,7 +180,7 @@ async def accept_bid(driver_roll_no: int, customer=Depends(get_current_user)):
     )
 
     # Remove the bids global variable key now that the bid has been accepted
-    del bids[customer_roll_no]
+    # del bids[customer_roll_no]
 
     return {
         "customer_roll_no": customer_roll_no,
@@ -191,19 +197,29 @@ async def update_job_status(order_status: str, user=Depends(get_current_user)):
     Updates the status of the order in the database for the customer
     '''
 
-    customer_roll_no=user.roll_no
+    customer_roll_no = user.roll_no
 
     # Update the last order in the orders list of the customer with the order_status. match the customer_roll_no, and from customer.orders, find the last order with status not done or cancelled and update that order's status
 
-    response=db.find_one({"roll_no": customer_roll_no})
+    response = db.find_one({"roll_no": customer_roll_no})
 
     for order in response["customer"]["orders"]:
         if order["status"] != "done" or order["status"] != "cancelled":
-            order["status"]=order_status
+            order["status"] = order_status
+
+            if order_status == "done":
+                order["delivered_at"] = datetime.now().strftime(
+                    "%d/%m/%Y %H:%M:%S")
+                del bids[customer_roll_no]
+
+            if order_status == "cancelled":
+                # Remove the customer from the bids global variable
+                del bids[customer_roll_no]
+
             break
 
-    response=db.update_one({"roll_no": customer_roll_no}, {
-                             "$set": {"customer": response["customer"]}})
+    response = db.update_one({"roll_no": customer_roll_no}, {
+        "$set": {"customer": response["customer"]}})
 
     if response.modified_count == 0:
         raise HTTPException(
@@ -221,16 +237,16 @@ async def getOrderStatus(user=Depends(get_current_user)):
     Get the status of the order for the customer    
     """
 
-    customer_roll_no=user.roll_no
+    customer_roll_no = user.roll_no
 
     # find the recent order of the customer
     try:
 
-        orders=db.find_one({"roll_no": customer_roll_no})[
+        orders = db.find_one({"roll_no": customer_roll_no})[
             "customer"]["orders"]
         for order in orders:
             if order["status"] != "done" and order["status"] != "cancelled":
-                recent_order=order
+                recent_order = order
                 break
 
         print("recent_order : ", recent_order)
@@ -243,18 +259,18 @@ async def getOrderStatus(user=Depends(get_current_user)):
 
     try:
         # find the status of the recent order
-        order_status=recent_order["status"]
-        driver=recent_order["driver_roll_no"]
+        order_status = recent_order["status"]
+        driver = recent_order["driver_roll_no"]
     except:
-        order_status="null"
-        driver="null"
+        order_status = "null"
+        driver = "null"
 
     try:
         # find the name of the driver
         response = db.find_one({"roll_no": driver})
         driver_name = response["name"]
     except:
-        driver_name="null"
+        driver_name = "null"
 
     return {
         "order_status": order_status,
@@ -269,15 +285,15 @@ async def getAllOrders(user=Depends(get_current_user)):
     """ 
     Get all orders of the customer
     """
-    
-    customer_roll_no=user.roll_no
 
-    orders=db.find_one({"roll_no": customer_roll_no})
-    orders=orders["customer"]["orders"]
-    
+    customer_roll_no = user.roll_no
+
+    orders = db.find_one({"roll_no": customer_roll_no})
+    orders = orders["customer"]["orders"]
+
     # Make an OrderHistory object for each order
-    orders_list=[]
-    
+    orders_list = []
+
     for order in orders:
         orderHistory = {
             "order_id": order["order_id"],
@@ -286,7 +302,7 @@ async def getAllOrders(user=Depends(get_current_user)):
             "placed_at": order["placed_at"],
             "driver_name": "No Driver Yet" if order["driver_roll_no"] == -1 else db.find_one({"roll_no": order["driver_roll_no"]})["name"],
         }
-        
+
         orders_list.append(orderHistory)
 
     return orders_list
@@ -298,15 +314,15 @@ async def removeAllOrders(user=Depends(get_current_user)):
     """ 
     Remove all orders of the customer
     """
-    
-    customer_roll_no=user.roll_no
 
-    response=db.find_one({"roll_no": customer_roll_no})
+    customer_roll_no = user.roll_no
 
-    response["customer"]["orders"]=[]
+    response = db.find_one({"roll_no": customer_roll_no})
 
-    response=db.update_one({"roll_no": customer_roll_no}, {
-                             "$set": {"customer": response["customer"]}})
+    response["customer"]["orders"] = []
+
+    response = db.update_one({"roll_no": customer_roll_no}, {
+        "$set": {"customer": response["customer"]}})
 
     if response.modified_count == 0:
         raise HTTPException(
@@ -316,9 +332,10 @@ async def removeAllOrders(user=Depends(get_current_user)):
 
     return {"detail": "All orders removed"}
 
+
 # endpoint to update the driver of the recent order
 @order_router.post("/customer/order/updateDriver/{driver_roll_no}")
-async def updateDriver(driver_roll_no: int, user = Depends(get_current_user)):
+async def updateDriver(driver_roll_no: int, user=Depends(get_current_user)):
     customer_roll_num = user.roll_no
 
     # Update the last order in the orders list of the customer with the order_status. match the customer_roll_no, and from customer.orders, find the last order with status not done or cancelled and update that order's status
@@ -329,8 +346,9 @@ async def updateDriver(driver_roll_no: int, user = Depends(get_current_user)):
         if order["status"] != "done" or order["status"] != "cancelled":
             order["driver_roll_no"] = driver_roll_no
             break
-    
-    response = db.update_one({"roll_no": customer_roll_num}, {"$set": {"customer": response["customer"]}})
+
+    response = db.update_one({"roll_no": customer_roll_num}, {
+                             "$set": {"customer": response["customer"]}})
 
     if response.modified_count == 0:
         raise HTTPException(
@@ -341,21 +359,89 @@ async def updateDriver(driver_roll_no: int, user = Depends(get_current_user)):
     return {"status": "success"}
 
 
-# endpoint to update the driver of the recent order
-@order_router.post("/customer/order/updateDriver/{driver_roll_no}")
-async def updateDriver(driver_roll_no: int, user = Depends(get_current_user)):
-    customer_roll_num = user.roll_no
+# An endpoint to get the job status for the driver
+@order_router.get("/driver/order/getStatus")
+async def getDriverOrderStatus(order_id: str, user=Depends(get_current_user)):
+    """ 
+    Get the status of the order for the driver    
+    """
 
-    # Update the last order in the orders list of the customer with the order_status. match the customer_roll_no, and from customer.orders, find the last order with status not done or cancelled and update that order's status
+    # Get the customer of the order from the database
+    customer = db.find_one({"customer.orders.order_id": order_id})
 
-    response = db.find_one({"roll_no": customer_roll_num})
+    order_status = "null"
+    temp_order = {}
 
-    for order in response["customer"]["orders"]:
-        if order["status"] != "done" or order["status"] != "cancelled":
-            order["driver_roll_no"] = driver_roll_no
+    # Extract the order status with the order_id
+    for order in customer["customer"]["orders"]:
+        if order["order_id"] == order_id:
+            temp_order = order
+            order_status = order["status"]
             break
-    
-    response = db.update_one({"roll_no": customer_roll_num}, {"$set": {"customer": response["customer"]}})
+
+    # If the order status is picking and the driver is the driver of the order, then return the status as picking
+    if order_status == "picking" and temp_order["driver_roll_no"] == user.roll_no:
+        return {"status": "picking"}
+
+    elif order_status == "picking" and temp_order["driver_roll_no"] != user.roll_no:
+        return {"status": "denied"}
+    elif order_status == "cancelled":
+        return {"status": "cancelled"}
+    else:
+        return {"status": "null"}
+
+
+# An EndPoint To Get Status Of An Order
+@order_router.get("/customer/order/getStatus/{order_id}")
+async def getCustomerOrderStatus(order_id: str, user=Depends(get_current_user)):
+    """ 
+    Get the status of the order for the customer    
+    """
+
+    # Get the customer of the order from the database
+    customer = db.find_one({"customer.orders.order_id": order_id})
+
+    order_status = "null"
+    temp_order = {}
+
+    # Extract the order status with the order_id
+    for order in customer["customer"]["orders"]:
+        if order["order_id"] == order_id:
+            temp_order = order
+            order_status = order["status"]
+            break
+
+    return {
+        "customerRollNo": customer["roll_no"],
+        "orderFrom": temp_order["deliver_from"],
+        "orderTo": temp_order["deliver_to"],
+        "orderStatus": order_status,
+    }
+
+
+# An Order Status Update Endpoint For Driver
+@order_router.post("/driver/order/updateStatus/{order_id}/{order_status}")
+async def updateOrderStatus(order_id: str, order_status: str, user=Depends(get_current_user)):
+    """ 
+    Update the status of the order for the driver    
+    """
+
+    print(f"Order ID: {order_id}")
+    print(f"Order Status: {order_status}")
+
+    # Get the customer of the order from the database
+    customer = db.find_one({"customer.orders.order_id": order_id})
+
+    print(f"Customer: {customer}")
+
+    # Extract the order status with the order_id
+    for order in customer["customer"]["orders"]:
+        if order["order_id"] == order_id:
+            order["status"] = order_status
+            break
+
+    response = db.update_one({"roll_no": customer["roll_no"]}, {
+                             "$set": {"customer": customer["customer"]}})
 
     if response.modified_count == 0:
         raise HTTPException(
