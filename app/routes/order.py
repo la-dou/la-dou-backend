@@ -12,7 +12,7 @@ order_router = APIRouter()
 
 
 # Post Order
-@order_router.post("/customer/order/create")
+@order_router.post("/orders/customer/create")
 async def create_order(order: Order, user=Depends(get_current_user)):
     '''
     Create an order by a Customer
@@ -48,7 +48,7 @@ async def create_order(order: Order, user=Depends(get_current_user)):
 
 
 # Retrieve All Pending Orders From The Database
-@order_router.get("/driver/order/viewall")
+@order_router.get("/orders/pending")
 async def view_all_orders(user=Depends(get_current_user)):
     '''
         Retrieve all pending orders from the database
@@ -72,7 +72,7 @@ async def view_all_orders(user=Depends(get_current_user)):
 
 
 # Bid on Job
-@order_router.post("/driver/order/bid")
+@order_router.post("/orders/bid")
 async def bid_on_order(order_id: str, amount: int, driver=Depends(get_current_user)):
     '''
     Appends a bid to the bids global variable
@@ -102,7 +102,7 @@ async def bid_on_order(order_id: str, amount: int, driver=Depends(get_current_us
 
 
 # # View all Bids
-@order_router.get("/customer/order/viewbids")
+@order_router.get("/orders/inprogress/bids/view")
 async def view_bids(user=Depends(get_current_user)):
     '''
     Uses the global bids variable to view all bids for a customer
@@ -137,7 +137,7 @@ async def view_bids(user=Depends(get_current_user)):
 
 
 # # Accept Bid (remove bids global var key)
-@order_router.post("/customer/order/acceptbid")
+@order_router.post("/orders/inprogress/bid/accept")
 async def accept_bid(driver_roll_no: int, user=Depends(get_current_user)):
     '''
     Fetch the bidding price from the bids global variable
@@ -231,7 +231,7 @@ async def accept_bid(driver_roll_no: int, user=Depends(get_current_user)):
 
 
 # Update Job Status
-@order_router.post("/order/inprogress/update")
+@order_router.post("/orders/inprogress/update")
 async def update_job_status(status: str, user=Depends(get_current_user)):
     '''
     Update the status of the order in the database
@@ -304,7 +304,7 @@ async def update_job_status(status: str, user=Depends(get_current_user)):
 
 
 # get the status of the order in progress
-@order_router.get("/order/inprogress")
+@order_router.get("/orders/inprogress")
 async def getOrderStatus(user=Depends(get_current_user)):
     """ 
     Get the status of the order for the customer    
@@ -340,7 +340,7 @@ async def getOrderStatus(user=Depends(get_current_user)):
 
 
 # get all orders of a customer
-@ order_router.get("/customer/order/getAllOrders")
+@ order_router.get("/orders/customer/getAllOrders")
 async def getAllOrders(user=Depends(get_current_user)):
     """ 
     Get all orders of the customer
@@ -369,7 +369,7 @@ async def getAllOrders(user=Depends(get_current_user)):
 
 
 # remove all orders of a customer
-@ order_router.delete("/customer/order/removeAllOrders")
+@ order_router.delete("/customer/orders/removeAllOrders")
 async def removeAllOrders(user=Depends(get_current_user)):
     """ 
     Remove all orders of the customer
@@ -394,7 +394,7 @@ async def removeAllOrders(user=Depends(get_current_user)):
 
 
 # An EndPoint To Get Status Of An Order
-@order_router.get("/order/status") #TODO: THERES A BUG FIX IT
+@order_router.get("/orders/status") #TODO: THERES A BUG FIX IT
 async def getCustomerOrderStatus(order_id: str, user=Depends(get_current_user)):
     """ 
     Get the status of the order for the customer    
@@ -416,7 +416,7 @@ async def getCustomerOrderStatus(order_id: str, user=Depends(get_current_user)):
     }
 
 
-@order_router.post("/order/inprogress/cancel")
+@order_router.post("/orders/inprogress/cancel")
 async def cancelOrder(user=Depends(get_current_user)):
     '''
     Cancel the order in progress
