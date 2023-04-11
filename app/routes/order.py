@@ -132,7 +132,7 @@ async def view_bids(user=Depends(get_current_user)):
             "name": db.find_one({"roll_no": driver_roll_no})["name"],
             "bid": amount
         })
-
+    print("Order in progress:", order_in_progress, "; bids:", bids_list)
     return bids_list
 
 
