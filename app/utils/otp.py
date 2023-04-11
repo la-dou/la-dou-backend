@@ -57,10 +57,11 @@ async def send_email(email: str, otp):
     try:
         sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
         response = sg.send(message)
+        print("OTP sent to", email, "\nRes:", response)
         return response
     except Exception as e:
-        # print("Error encountered:")
-        # print(e.message)
+        print("Error encountered while sending OTP:")
+        print(e.message)
         pass
 
 
