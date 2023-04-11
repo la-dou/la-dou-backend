@@ -2,9 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from ..config.deps import get_current_user
 from ..models.user import UserSearch
 from ..config.database import db
-from ..schemas.user import usersEntity
 from ..models.user import SystemUser
-from ..models.order import DriverOrder
 
 admin = APIRouter()
 
