@@ -192,7 +192,7 @@ async def accept_bid(driver_roll_no: int, user=Depends(get_current_user)):
             "$set": {
                 "customer.orders.$.assigned_to": driver_roll_no,
                 "customer.orders.$.delivery_price": bid["amount"],
-                "customer.orders.$.status": "picking"
+                "customer.orders.$.status": "assigned"
             }
         }
     )
@@ -205,7 +205,7 @@ async def accept_bid(driver_roll_no: int, user=Depends(get_current_user)):
             "$push": {
                 "driver.orders": {
                     **order,
-                    "status": "picking",
+                    "status": "assigned",
                     "assigned_to": user.roll_no
                 }
             }
