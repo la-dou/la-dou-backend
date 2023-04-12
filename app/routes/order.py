@@ -90,7 +90,7 @@ async def bid_on_order(order_id: str, amount: int, driver=Depends(get_current_us
     db.update_one(
         {"customer.orders.id": order_id},
         {"$push": {"customer.orders.$.bids": {
-            "driver_roll_no": driver.roll_no,
+            "assigned_to": driver.roll_no,
             "amount": amount
         }}},
     )
