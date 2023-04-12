@@ -359,7 +359,7 @@ async def getAllOrders(user=Depends(get_current_user)):
             "deliver_to": order["deliver_to"],
             "order_amount": order["order_amount"],
             "placed_at": order["placed_at"],
-            "driver_name": "No Driver Yet" if order["driver_roll_no"] == -1 else db.find_one({"roll_no": order["driver_roll_no"]})["name"],
+            "driver_name": "No Driver Yet" if order["assigned_to"] == -1 else db.find_one({"roll_no": order["assigned_to"]})["name"],
         }
 
         orders_list.append(orderHistory)
