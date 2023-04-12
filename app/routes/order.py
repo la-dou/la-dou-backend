@@ -29,7 +29,7 @@ async def create_order(order: Order, user=Depends(get_current_user)):
             detail="Customer already has an order in progress",
         )
     # Generate a unique id for the order
-    order.id = ObjectId()
+    order.id = str(ObjectId())
     # Insert the order to the customer's orders array
     db.update_one(
         {"roll_no": user.roll_no},
