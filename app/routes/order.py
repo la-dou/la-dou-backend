@@ -314,8 +314,9 @@ async def getOrderStatus(user=Depends(get_current_user)):
         order_in_progress = db.find_one({"roll_no": user.roll_no})[
             "driver"]["order_in_progress"]
         # fetch the order from the DB
-        order = db.find_one({"driver.orders.id": order_in_progress})[
-            "driver"]["orders"][0]
+        if order_in_progress:
+            order = db.find_one({"driver.orders.id": order_in_progress})[
+                "driver"]["orders"][0]
     else:
         # fetch the order from the DB
         order = db.find_one({"customer.orders.id": order_in_progress})[
