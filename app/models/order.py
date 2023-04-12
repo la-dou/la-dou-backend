@@ -1,9 +1,9 @@
 from pydantic import BaseModel
-from bson.objectid import ObjectId
+# from bson.objectid import ObjectId
 
 
 class Order(BaseModel):
-    _id: ObjectId = None
+    id: str = None  # order id
     deliver_to: str = ""  # where to deliver the order
     deliver_from: str = ""  # where to pick up the order
     notes: str = ""  # any additional notes

@@ -29,7 +29,7 @@ async def create_order(order: Order, user=Depends(get_current_user)):
             detail="Customer already has an order in progress",
         )
     # Generate a unique id for the order
-    order._id = ObjectId()
+    order.id = ObjectId()
     # Insert the order to the customer's orders array
     db.update_one(
         {"roll_no": user.roll_no},
@@ -39,7 +39,7 @@ async def create_order(order: Order, user=Depends(get_current_user)):
     # Update the customer's order_in_progress field
     db.update_one(
         {"roll_no": user.roll_no},
-        {"$set": {"customer.order_in_progress": order._id}},
+        {"$set": {"customer.order_in_progress": order.id}},
     )
 
     return {"detail": "Order created successfully"}
@@ -78,7 +78,7 @@ async def bid_on_order(order_id: str, amount: int, driver=Depends(get_current_us
     '''
 
     # Find the customer who placed the order
-    customer = db.find_one({"customer.orders._id": order_id})
+    customer = db.find_one({"customer.orders.id": order_id})
 
     # If order not found, raise an error
     if not customer:
@@ -88,7 +88,7 @@ async def bid_on_order(order_id: str, amount: int, driver=Depends(get_current_us
         )
     # add the bid in the db
     db.update_one(
-        {"customer.orders._id": order_id},
+        {"customer.orders.id": order_id},
         {"$push": {"customer.orders.$.bids": {
             "driver_roll_no": driver.roll_no,
             "amount": amount
@@ -112,9 +112,9 @@ async def view_bids(user=Depends(get_current_user)):
     print(order_in_progress)
     # query the DB for bids
     bids = db.aggregate([
-        {"$match": {"customer.orders._id": order_in_progress}},
+        {"$match": {"customer.orders.id": order_in_progress}},
         {"$unwind": "$customer.orders"},
-        {"$match": {"customer.orders._id": order_in_progress}},
+        {"$match": {"customer.orders.id": order_in_progress}},
         {"$unwind": "$customer.orders.bids"},
         {"$project": {
             "driver_roll_no": "$customer.orders.bids.driver_roll_no",
@@ -161,9 +161,9 @@ async def accept_bid(driver_roll_no: int, user=Depends(get_current_user)):
         "customer"]["order_in_progress"]
     # fetch the order from the DB
     order = list(db.aggregate([
-        {"$match": {"customer.orders._id": order_in_progress}},
+        {"$match": {"customer.orders.id": order_in_progress}},
         {"$unwind": "$customer.orders"},
-        {"$match": {"customer.orders._id": order_in_progress}},
+        {"$match": {"customer.orders.id": order_in_progress}},
         {"$project": {
             "order": "$customer.orders"
         }}
@@ -171,9 +171,9 @@ async def accept_bid(driver_roll_no: int, user=Depends(get_current_user)):
 
     # get the bid
     bid = list(db.aggregate([
-        {"$match": {"customer.orders._id": order_in_progress}},
+        {"$match": {"customer.orders.id": order_in_progress}},
         {"$unwind": "$customer.orders"},
-        {"$match": {"customer.orders._id": order_in_progress}},
+        {"$match": {"customer.orders.id": order_in_progress}},
         {"$unwind": "$customer.orders.bids"},
         {"$match": {"customer.orders.bids.driver_roll_no": driver_roll_no}},
         {"$project": {
@@ -184,7 +184,7 @@ async def accept_bid(driver_roll_no: int, user=Depends(get_current_user)):
     db.update_one(
         {
             "roll_no": user.roll_no,
-            "customer.orders._id": order_in_progress
+            "customer.orders.id": order_in_progress
         },
         {
             "$set": {
@@ -253,7 +253,7 @@ async def update_job_status(status: str, user=Depends(get_current_user)):
     # update the status of the order in the database for the customer
     db.update_one(
         {
-            "customer.orders._id": order_in_progress
+            "customer.orders.id": order_in_progress
         },
         {
             "$set": {
@@ -265,7 +265,7 @@ async def update_job_status(status: str, user=Depends(get_current_user)):
     # update the status of the order in the database for the driver
     db.update_one(
         {
-            "driver.orders._id": order_in_progress
+            "driver.orders.id": order_in_progress
         },
         {
             "$set": {
@@ -289,7 +289,7 @@ async def update_job_status(status: str, user=Depends(get_current_user)):
         # update customer's order in progress
         db.update_one(
             {
-                "customer.orders._id": order_in_progress
+                "customer.orders.id": order_in_progress
             },
             {
                 "$set": {
@@ -314,11 +314,11 @@ async def getOrderStatus(user=Depends(get_current_user)):
         order_in_progress = db.find_one({"roll_no": user.roll_no})[
             "driver"]["order_in_progress"]
         # fetch the order from the DB
-        order = db.find_one({"driver.orders._id": order_in_progress})[
+        order = db.find_one({"driver.orders.id": order_in_progress})[
             "driver"]["orders"][0]
     else:
         # fetch the order from the DB
-        order = db.find_one({"customer.orders._id": order_in_progress})[
+        order = db.find_one({"customer.orders.id": order_in_progress})[
             "customer"]["orders"][0]
 
     if not order_in_progress:
@@ -397,7 +397,7 @@ async def getCustomerOrderStatus(order_id: str, user=Depends(get_current_user)):
     """ 
     Get the status of the order for the customer    
     """
-    order = db.find_one({"customer.orders._id": order_id})[
+    order = db.find_one({"customer.orders.id": order_id})[
         "customer"]["orders"][0]
     if not order:
         raise HTTPException(
@@ -433,7 +433,7 @@ async def cancelOrder(user=Depends(get_current_user)):
     # update the status of the order in the database for the customer
     db.update_one(
         {
-            "customer.orders._id": order_in_progress
+            "customer.orders.id": order_in_progress
         },
         {
             "$set": {
@@ -445,7 +445,7 @@ async def cancelOrder(user=Depends(get_current_user)):
     # update the status of the order in the database for the driver
     db.update_one(
         {
-            "driver.orders._id": order_in_progress
+            "driver.orders.id": order_in_progress
         },
         {
             "$set": {
@@ -469,7 +469,7 @@ async def cancelOrder(user=Depends(get_current_user)):
     # update the order_in_progress field in the database for the driver
     db.update_one(
         {
-            "driver.orders._id": order_in_progress
+            "driver.orders.id": order_in_progress
         },
         {
             "$set": {
