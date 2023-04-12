@@ -3,7 +3,7 @@ from uuid import uuid4, UUID
 
 
 class Order(BaseModel):
-    order_id: UUID = uuid4().hex  # unique id of the order
+    # order_id: UUID = uuid4().hex  # unique id of the order
     deliver_to: str = ""  # where to deliver the order
     deliver_from: str = ""  # where to pick up the order
     notes: str = ""  # any additional notes
