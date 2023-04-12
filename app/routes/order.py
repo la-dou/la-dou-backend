@@ -355,7 +355,7 @@ async def getAllOrders(user=Depends(get_current_user)):
 
     for order in orders:
         orderHistory = {
-            "_id": order["_id"],
+            "id": order["id"],
             "deliver_to": order["deliver_to"],
             "order_amount": order["order_amount"],
             "placed_at": order["placed_at"],
