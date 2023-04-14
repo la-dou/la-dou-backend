@@ -315,14 +315,22 @@ async def getOrderStatus(user=Depends(get_current_user)):
             "driver"]["order_in_progress"]
         # fetch the order from the DB
         if order_in_progress:
-            order = db.find_one({"driver.orders.id": order_in_progress})[
-                "driver"]["orders"][0]
+            order = db.aggregate([
+                {"$match": {"driver.orders.id": order_in_progress}},
+                {"$project": {
+                    "order": "$driver.orders"
+                }}
+            ])[0]["order"]
         print("/orders/inprogress driver:", order_in_progress, order)
     else:
         # fetch the order from the DB
-        order = db.find_one({"customer.orders.id": order_in_progress})[
-            "customer"]["orders"][0]
-    print("/orders/inprogress customer:", order_in_progress, order)
+        order = db.aggregate([
+            {"$match": {"customer.orders.id": order_in_progress}},
+            {"$project": {
+                "order": "$customer.orders"
+            }}
+        ])[0]["order"]
+        print("/orders/inprogress customer:", order_in_progress, order)
 
     if not order_in_progress:
         raise HTTPException(
