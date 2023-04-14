@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     SENDER_EMAIL: str
     SENDGRID_API_KEY: str
     GOOGLE_APPLICATION_CREDENTIALS: dict
+    SENDER_EMAIL_PASSWORD: str
 
     class Config:
         env_file = ".env"
