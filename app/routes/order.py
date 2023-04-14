@@ -414,23 +414,27 @@ async def getCustomerOrderStatus(id: str, user=Depends(get_current_user)):
     """
     roll_no = user.roll_no
     # fetch the order from DB for the current user using order id
-    order = list(db.aggregate([
-        {"$match": {"roll_no": roll_no}},
-        {"$unwind": "$customer.orders"},
-        {"$match": {"customer.orders.id": id}},
-        {"$project": {
-            "order": "$customer.orders"
-        }}
-    ]))[0]["order"]
-    if not order:
+    try:
         order = list(db.aggregate([
             {"$match": {"roll_no": roll_no}},
-            {"$unwind": "$driver.orders"},
-            {"$match": {"driver.orders.id": id}},
+            {"$unwind": "$customer.orders"},
+            {"$match": {"customer.orders.id": id}},
             {"$project": {
-                "order": "$driver.orders"
+                "order": "$customer.orders"
             }}
         ]))[0]["order"]
+    except IndexError:
+        try:
+            order = list(db.aggregate([
+                {"$match": {"roll_no": roll_no}},
+                {"$unwind": "$driver.orders"},
+                {"$match": {"driver.orders.id": id}},
+                {"$project": {
+                    "order": "$driver.orders"
+                }}
+            ]))[0]["order"]
+        except IndexError:
+            order = None
     print("/orders/status:", order)
 
     if not order:
