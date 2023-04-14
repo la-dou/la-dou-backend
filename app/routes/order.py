@@ -394,12 +394,16 @@ async def removeAllOrders(user=Depends(get_current_user)):
 
 # An EndPoint To Get Status Of An Order
 @order_router.get("/orders/status")  # TODO: THERES A BUG FIX IT
-async def getCustomerOrderStatus(order_id: str, user=Depends(get_current_user)):
-    """ 
+async def getCustomerOrderStatus(id: str, user=Depends(get_current_user)):
+    """
     Get the status of the order for the customer    
     """
-    order = db.find_one({"customer.orders.id": order_id})[
+    order = db.find_one({"customer.orders.id": id})[
         "customer"]["orders"][0]
+    if not order:
+        order = db.find_one({"driver.orders.id": id})[
+            "driver"]["orders"][0]
+
     if not order:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -407,7 +411,8 @@ async def getCustomerOrderStatus(order_id: str, user=Depends(get_current_user)):
         )
 
     # get the assignee's name
-    assignee_name = db.find_one({"roll_no": order["assigned_to"]})["name"]
+    assignee_name = None if not order["assigned_to"] else db.find_one(
+        {"roll_no": order["assigned_to"]})["name"]
 
     return {
         **order,
