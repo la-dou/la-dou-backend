@@ -414,13 +414,24 @@ async def getCustomerOrderStatus(id: str, user=Depends(get_current_user)):
     """
     roll_no = user.roll_no
     # fetch the order from DB for the current user using order id
-    db_res = db.find_one({"roll_no": roll_no, "customer.orders.id": id})
-    if not db_res:
-        db_res = db.find_one({"roll_no": roll_no, "driver.orders.id": id})
-        if db_res:
-            order = db_res["driver"]["orders"][0]
-    else:
-        order = db_res["customer"]["orders"][0]
+    order = list(db.aggregate([
+        {"$match": {"roll_no": roll_no}},
+        {"$unwind": "$customer.orders"},
+        {"$match": {"customer.orders.id": id}},
+        {"$project": {
+            "order": "$customer.orders"
+        }}
+    ]))
+    if not order:
+        order = list(db.aggregate([
+            {"$match": {"roll_no": roll_no}},
+            {"$unwind": "$driver.orders"},
+            {"$match": {"driver.orders.id": id}},
+            {"$project": {
+                "order": "$driver.orders"
+            }}
+        ]))
+    print("/orders/status:", order)
 
     if not order:
         raise HTTPException(
