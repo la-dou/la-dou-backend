@@ -414,13 +414,13 @@ async def getCustomerOrderStatus(id: str, user=Depends(get_current_user)):
     """
     roll_no = user.roll_no
     # fetch the order from DB for the current user using order id
-    print("id:", id, "roll_no:", roll_no)
-    print(db.find_one({"roll_no": roll_no, "customer.orders.id": id}))
-    order = db.find_one({"roll_no": roll_no, "customer.orders.id": id})[
-        "customer"]["orders"][0]
-    if not order:
-        order = db.find_one({"roll_no": roll_no, "driver.orders.id": id})[
-            "driver"]["orders"][0]
+    db_res = db.find_one({"roll_no": roll_no, "customer.orders.id": id})
+    if not db_res:
+        db_res = db.find_one({"roll_no": roll_no, "driver.orders.id": id})
+        if db_res:
+            order = db_res["driver"]["orders"][0]
+    else:
+        order = db_res["customer"]["orders"][0]
 
     if not order:
         raise HTTPException(
