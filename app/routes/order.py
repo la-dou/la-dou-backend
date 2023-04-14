@@ -5,6 +5,8 @@ from ..config.deps import get_current_user
 from ..config.database import db
 from ..models.order import Order
 
+from ..utils.fcm import send_notification, send_notification_to_user
+
 order_router = APIRouter()
 
 
@@ -248,6 +250,27 @@ async def update_job_status(status: str, user=Depends(get_current_user)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No order in progress",
         )
+    
+
+    # find the customer's name from the DB, which has the order in progress
+    customer = db.find_one({"customer.orders.id": order_in_progress})
+
+    orderStatusMessages = {
+        "picked": "Your order has been assigned to a driver",
+        "arrived": "Your order has been picked up",
+        "delivered": "Your order has been delivered",
+        "done": "Your order has been completed",
+        "cancelled": "Your order has been cancelled"
+    }
+    
+    try:
+        send_notification_to_user(
+            f"Order {status}",
+            orderStatusMessages[status],
+            customer["roll_no"]
+        )
+    except:
+        print("Error sending notification to user")
 
     # Update the order in the database with the order_status, do it for both customer and driver
     # update the status of the order in the database for the customer
@@ -467,6 +490,20 @@ async def cancelOrder(user=Depends(get_current_user)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No order in progress",
         )
+    
+    # find the driver which has this order in their orders
+    driver = db.find_one({"driver.orders.id": order_in_progress})
+    if not driver:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No driver found",
+        )
+    
+    send_notification_to_user(
+        "Order Cancelled",
+        "Your order has been cancelled by the customer",
+        driver["roll_no"]
+    )
 
     # Update the order in the database with the order_status, do it for both customer and driver
     # update the status of the order in the database for the customer
