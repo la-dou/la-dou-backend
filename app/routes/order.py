@@ -398,10 +398,13 @@ async def getCustomerOrderStatus(id: str, user=Depends(get_current_user)):
     """
     Get the status of the order for the customer    
     """
-    order = db.find_one({"customer.orders.id": id})[
+    roll_no = user.roll_no
+    # fetch the order from DB for the current user using order id
+
+    order = db.find_one({"roll_no": roll_no, "driver.orders.id": id})[
         "customer"]["orders"][0]
     if not order:
-        order = db.find_one({"driver.orders.id": id})[
+        order = db.find_one({"roll_no": roll_no, "driver.orders.id": id})[
             "driver"]["orders"][0]
 
     if not order:
