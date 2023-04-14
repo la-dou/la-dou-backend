@@ -421,7 +421,7 @@ async def getCustomerOrderStatus(id: str, user=Depends(get_current_user)):
         {"$project": {
             "order": "$customer.orders"
         }}
-    ]))
+    ]))[0]["order"]
     if not order:
         order = list(db.aggregate([
             {"$match": {"roll_no": roll_no}},
@@ -430,7 +430,7 @@ async def getCustomerOrderStatus(id: str, user=Depends(get_current_user)):
             {"$project": {
                 "order": "$driver.orders"
             }}
-        ]))
+        ]))[0]["order"]
     print("/orders/status:", order)
 
     if not order:
