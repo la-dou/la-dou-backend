@@ -414,7 +414,8 @@ async def getCustomerOrderStatus(id: str, user=Depends(get_current_user)):
     """
     roll_no = user.roll_no
     # fetch the order from DB for the current user using order id
-
+    print("id:", id, "roll_no:", roll_no)
+    print(db.find_one({"roll_no": roll_no, "customer.orders.id": id}))
     order = db.find_one({"roll_no": roll_no, "customer.orders.id": id})[
         "customer"]["orders"][0]
     if not order:
