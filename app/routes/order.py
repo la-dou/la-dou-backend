@@ -9,7 +9,7 @@ order_router = APIRouter()
 
 
 # Post Order
-@order_router.post("/orders/customer/create")
+@order_router.post("/orders/customer/create", response_model=Order)
 async def create_order(order: Order, user=Depends(get_current_user)):
     '''
     Create an order by a Customer
@@ -42,7 +42,7 @@ async def create_order(order: Order, user=Depends(get_current_user)):
         {"$set": {"customer.order_in_progress": order.id}},
     )
 
-    return {"detail": "Order created successfully"}
+    return order
 
 
 # Retrieve All Pending Orders From The Database
