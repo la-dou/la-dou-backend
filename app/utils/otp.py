@@ -52,19 +52,11 @@ def verify_OTP(client_id: int, otp: int):
 async def send_email(email: str, otp):
     
     sender_email = settings.SENDER_EMAIL
-    receiver_email = "email"
+    receiver_email = email
     password = settings.SENDER_EMAIL_PASSWORD
     subject = "OTP verification code"
-    message = "Your OTP verification code is: 1234"
+    message = f"Your OTP verification code is: {otp}"
     # try:
-    #     sg = SendGridAPIClient(settings.SENDGRID_API_KEY)
-    #     response = sg.send(message)
-    #     print("OTP sent to", email, "\nRes:", response)
-    #     return response
-    # except Exception as e:
-    #     print("Error encountered while sending OTP:")
-    #     print(e.message)
-    #     pass
         
     # Create a multipart message and set headers
     msg = MIMEMultipart()
