@@ -317,6 +317,8 @@ async def getOrderStatus(user=Depends(get_current_user)):
         if order_in_progress:
             order = list(db.aggregate([
                 {"$match": {"driver.orders.id": order_in_progress}},
+                {"$unwind": "$driver.orders"},
+                {"$match": {"driver.orders.id": order_in_progress}},
                 {"$project": {
                     "order": "$driver.orders"
                 }}
@@ -325,6 +327,8 @@ async def getOrderStatus(user=Depends(get_current_user)):
     else:
         # fetch the order from the DB
         order = list(db.aggregate([
+            {"$match": {"customer.orders.id": order_in_progress}},
+            {"$unwind": "$customer.orders"},
             {"$match": {"customer.orders.id": order_in_progress}},
             {"$project": {
                 "order": "$customer.orders"
