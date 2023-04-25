@@ -5,14 +5,14 @@ import random
 ENDPOINT = "http://localhost:8000"
 
 def test_signup():
-    roll_no = 2000
+    roll_no = 24100111
     payload =   {
         "roll_no": roll_no,
         "password": "test_password",
         "role": "customer",
-        "name": "Usman Jehangir",
+        "name": "Usman Javed",
         "gender": "Male",
-        "phone_number": "03206850001",
+        "phone_number": "03001234567",
         "email_verified": False,
         "phone_verified": False,
         "fcm_device_token": [],
@@ -42,4 +42,3 @@ def test_signup():
     assert delete_response.status_code == 200
     delete_data = delete_response.json()
     # print("DELETE DATA: ", delete_data)
-
