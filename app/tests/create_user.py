@@ -8,7 +8,7 @@ def create_user(roll_no):
         "roll_no": roll_no,
         "password": "test_password",
         "role": "customer",
-        "name": "Usman Javed",
+        "name": f"Usman Javed {roll_no}",
         "gender": "Male",
         "phone_number": "03001234567",
         "email_verified": True,
