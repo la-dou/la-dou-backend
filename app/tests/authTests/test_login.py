@@ -1,28 +1,19 @@
 import pytest
 import requests
 import json
-# import sys
-# sys.path.append("../")
-# from tests.login_for_test import login
-
-def login():
-    head = {"Content-Type": "application/x-www-form-urlencoded"}
-    auth_info = {"username": "24100101", "password": "test_password"}
-    response = requests.post(ENDPOINT + "/login", data=auth_info, headers=head)
-    response = json.loads(response.text)
-    return response
+from ..login import login
 
 ENDPOINT = "http://localhost:8000"
 
 def test_login_userexists():
-    response = login()
-    print() # Skipping Line
-    print(response)
+    response, data = login(24100101)
+    assert response.status_code == 200
+    assert data["access_token"] != None
 
 def test_login_usernotexist():
     head = {"Content-Type": "application/x-www-form-urlencoded"}
-    auth_info = {"username": "0", "password": "test_password"}
+    auth_info = {"username": "50", "password": "test_password"}
     response = requests.post(ENDPOINT + "/login", data=auth_info, headers=head)
-    print() # Skipping Line
+    assert response.status_code == 404
     response = json.loads(response.text)
-    print(response)
+    assert response["detail"] == "Roll Number not found"
