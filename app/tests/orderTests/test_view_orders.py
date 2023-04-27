@@ -24,41 +24,30 @@ def test_view_orders():
         login_cust_datas.append(login_cust_data)
         access_tokens.append(login_cust_data["access_token"])
     
-    create_order_responses, create_order_datas = [], []
+    # create_order_responses, create_order_datas = [], []
 
-    for i in range(len(customer_roll_nos)):
-        create_order_responses.append(create_order(customer_roll_nos[i], access_tokens[i], "Khoka", "M6", "pending"))
-        create_order_datas.append(create_order_responses[i].json())
+    # for i in range(len(customer_roll_nos)):
+    #     create_order_responses.append(create_order(customer_roll_nos[i], access_tokens[i], "Khoka", "M6", "pending"))
+    #     create_order_datas.append(create_order_responses[i].json())
         # print("CREATE ORDER DATA", i, ":", create_order_datas[i])
         
     response = requests.get(ENDPOINT + "/orders/pending", headers=headers)
+    print("HERE", response)
     data = response.json()
     assert response.status_code == 200
+    assert len(data) == 10
     # print(data)
 
     for i in range(len(customer_roll_nos)):
         response = remove_order(customer_roll_nos[i], access_tokens[i])
+        print("TEST", i)
         data = response.json()
-        # print("REMOVE ORDER DATA", i, ":", data)
+        print(response)
+        data = json.loads(response.text)
 
 
-    # for i in range(len(customer_roll_nos)):
-    response = cancel_order(driver_roll_no, access_token_driver)
-    data = response.json()
-    # print("CANCEL ORDER DATA", i, ":", data)
-    
-    
-    print("Working")
-    # customer_roll_no = 24100101
-    # login_cust_response, login_cust_data = login(customer_roll_no)
-    # access_token_customer = login_cust_data["access_token"]
-    # print("CUST ACC TOKEN", access_token_customer)
-    # remove_order_response = remove_order(customer_roll_no, access_token_customer)
-    # remove_order_data = remove_order_response.json()
-    # print("REMOVE ORDER DATA", remove_order_data)
-    # create_order_response = create_order(customer_roll_no, access_token_customer, "Khoka", "M6", "ongoing")
-    # create_order_data = create_order_response.json()
-    # print("CREATE ORDER DATA", create_order_data)
-    # login_driver_response, login_driver_data = login(24100300)
-    # access_token_driver = login_driver_data["access_token"]
-    # print("DRIVER ACC TOKEN", access_token_driver)
+    for i in range(len(customer_roll_nos)):
+        response = cancel_order(driver_roll_no, access_token_driver)
+        data = response.json()
+        print(response)
+        print("CANCEL ORDER DATA", i, ":", data)
