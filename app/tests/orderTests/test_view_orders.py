@@ -26,13 +26,13 @@ def test_view_orders():
     
     # create_order_responses, create_order_datas = [], []
 
-    # for i in range(len(customer_roll_nos)):
-    #     create_order_responses.append(create_order(customer_roll_nos[i], access_tokens[i], "Khoka", "M6", "pending"))
-    #     create_order_datas.append(create_order_responses[i].json())
+    for i in range(len(customer_roll_nos)):
+        create_order_responses.append(create_order(customer_roll_nos[i], access_tokens[i], "Khoka", "M6", "pending"))
+        create_order_datas.append(create_order_responses[i].json())
         # print("CREATE ORDER DATA", i, ":", create_order_datas[i])
         
     response = requests.get(ENDPOINT + "/orders/pending", headers=headers)
-    print("HERE", response)
+    # print("HERE", response)
     data = response.json()
     assert response.status_code == 200
     assert len(data) == 10
@@ -40,14 +40,14 @@ def test_view_orders():
 
     for i in range(len(customer_roll_nos)):
         response = remove_order(customer_roll_nos[i], access_tokens[i])
-        print("TEST", i)
+        # print("TEST", i)
         data = response.json()
-        print(response)
+        # print(response)
         data = json.loads(response.text)
 
 
     for i in range(len(customer_roll_nos)):
         response = cancel_order(driver_roll_no, access_token_driver)
         data = response.json()
-        print(response)
-        print("CANCEL ORDER DATA", i, ":", data)
+        # print(response)
+        # print("CANCEL ORDER DATA", i, ":", data)

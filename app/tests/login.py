@@ -8,5 +8,5 @@ def login(roll_no):
     auth_info = {"username": f"{roll_no}", "password": "test_password"}
     response = requests.post(ENDPOINT + "/login", data=auth_info, headers=head)
     data = json.loads(response.text)
-    print("USER LOGIN: ", roll_no, data)
+    # print("USER LOGIN: ", roll_no, data)
     return response, data
