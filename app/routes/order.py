@@ -404,11 +404,11 @@ async def getAllOrders(user=Depends(get_current_user)):
     return orders_list
 
 
-# remove all orders of a customer
-@ order_router.delete("/customer/orders/removeAllOrders")
-async def removeAllOrders(user=Depends(get_current_user)):
+# remove all orders of a user
+@ order_router.delete("/orders/remove/all")
+async def remove_all_orders(user=Depends(get_current_user)):
     """ 
-    Remove all orders of the customer
+    Remove all orders of the user
     """
 
     customer_roll_no = user.roll_no
@@ -416,9 +416,21 @@ async def removeAllOrders(user=Depends(get_current_user)):
     response = db.find_one({"roll_no": customer_roll_no})
 
     response["customer"]["orders"] = []
+    response["customer"]["order_in_progress"] = None
+    # reset ratings
+    response["customer"]["rating"]["sum"] = 0
+    response["customer"]["rating"]["count"] = 0
+    response["driver"]["orders"] = []
+    response["driver"]["order_in_progress"] = None
+    # reset ratings
+    response["driver"]["rating"]["sum"] = 0
+    response["driver"]["rating"]["count"] = 0
+
 
     response = db.update_one({"roll_no": customer_roll_no}, {
         "$set": {"customer": response["customer"]}})
+    response = db.update_one({"roll_no": customer_roll_no}, {
+        "$set": {"driver": response["driver"]}})
 
     if response.modified_count == 0:
         raise HTTPException(
